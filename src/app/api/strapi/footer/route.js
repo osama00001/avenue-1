@@ -3,10 +3,7 @@ import { getStrapiSingle } from "@/lib/strapi";
 
 export async function GET() {
   try {
-    const data = await getStrapiSingle(
-      "footer",
-      "populate[columns][populate][links]=*"
-    );
+    const data = await getStrapiSingle("footer", "populate=columns.links");
     return NextResponse.json({ data: data?.data || null });
   } catch (err) {
     console.error("[/api/strapi/footer] error:", err);

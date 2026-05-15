@@ -1,5 +1,21 @@
 # Strapi setup notes
 
+## Local integration (this repo)
+
+1. Start the Strapi backend:
+   - `cd strapi-backend`
+   - `npm install`
+   - `npm run develop`
+2. Create the first admin user at `http://localhost:1337/admin`.
+3. Ensure `avenue/.env.local` points to local Strapi:
+   - `STRAPI_URL=http://localhost:1337`
+   - `STRAPI_TOKEN` is optional and only needed for protected endpoints.
+4. In Strapi Admin, enable public `find`/`findOne` for the types below.
+5. Start the Next.js app:
+   - `cd avenue`
+   - `npm install`
+   - `npm run dev`
+
 Use Strapi Cloud and create the content types below. The Next.js integration
 expects these names and fields.
 

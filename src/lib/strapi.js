@@ -13,6 +13,7 @@ const buildUrl = (path) => {
 const defaultHeaders = () => {
   const headers = { "Content-Type": "application/json" };
   if (STRAPI_TOKEN) {
+    console.warn(STRAPI_TOKEN,"&&&&&&&&&&&&&&&&&&&&&")
     headers.Authorization = `Bearer ${STRAPI_TOKEN}`;
   }
   return headers;
@@ -49,4 +50,16 @@ export const getStrapiCollection = async (name, query = "") => {
 export const getStrapiPageBySlug = async (slug, query = "") => {
   const suffix = query ? `&${query}` : "";
   return fetchStrapi(`/api/pages?filters[slug][$eq]=${slug}${suffix}`);
+};
+
+export const getStrapiMediaUrl = (url) => {
+  if (!url) return url;
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return url;
+  }
+  if (url.startsWith("//")) {
+    return url;
+  }
+  const normalized = url.startsWith("/") ? url : `/${url}`;
+  return buildUrl(normalized);
 };

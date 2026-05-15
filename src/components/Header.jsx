@@ -21,6 +21,7 @@ import { fetchCategories } from "@/store/categorySlice";
 import { map } from "zod";
 import { fetchUserCategories } from "@/store/userCategorySlice";
 import { fetchNavigation } from "@/store/navigationSlice";
+import { getStrapiMediaUrl } from "@/lib/strapi";
 
 export default function Header() {
   const dispatch = useDispatch();
@@ -48,8 +49,9 @@ export default function Header() {
         if (!res.ok) return;
         const payload = await res.json();
         const entry = payload?.data;
-        if (entry?.attributes) {
-          setSiteSettings({ id: entry.id, ...entry.attributes });
+        const attributes = entry?.attributes ?? entry;
+        if (attributes) {
+          setSiteSettings({ id: entry?.id, ...attributes });
         }
       } catch (err) {
         console.error("[header] failed to load site settings", err);
@@ -104,7 +106,8 @@ export default function Header() {
     siteSettings?.deliveryText ||
     "Free UK delivery on orders over £25, otherwise £2.99";
   const logoUrl =
-    siteSettings?.logo?.data?.attributes?.url || "/img/avenuemain.png";
+    getStrapiMediaUrl(siteSettings?.logo?.data?.attributes?.url) ||
+    "/img/avenuemain.png";
   const logoAlt =
     siteSettings?.logo?.data?.attributes?.alternativeText || "Logo";
 
@@ -467,7 +470,7 @@ export default function Header() {
 
       {/* DELIVERY INFO */}
       <div className="bg-[#e9e7e2] text-black text-xs sm:text-sm p-1 text-center">
-        Free UK delivery on orders over £25, otherwise £2.99
+        {deliveryText}
       </div>
     </header>
   );

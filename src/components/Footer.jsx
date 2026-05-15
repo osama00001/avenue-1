@@ -30,6 +30,27 @@ const ICON_MAP = {
   faLinkedin,
 };
 
+const pickFirstString = (obj, exclude = []) => {
+  if (!obj) return null;
+  for (const [key, value] of Object.entries(obj)) {
+    if (exclude.includes(key)) continue;
+    if (typeof value === "string" && value.trim().length) {
+      return value.trim();
+    }
+  }
+  return null;
+};
+
+const resolveFooterHref = (href) => {
+  if (!href) return "#";
+  if (href.startsWith("http://") || href.startsWith("https://")) {
+    return href;
+  }
+  if (href.startsWith("/cms/")) return href;
+  const normalized = href.startsWith("/") ? href : `/${href}`;
+  return `/cms${normalized}`;
+};
+
 export default function Footer() {
   const dispatch = useDispatch();
   const [footerConfig, setFooterConfig] = useState(null);
@@ -55,8 +76,9 @@ export default function Footer() {
         if (!res.ok) return;
         const payload = await res.json();
         const entry = payload?.data;
-        if (entry?.attributes) {
-          setFooterConfig({ id: entry.id, ...entry.attributes });
+        const attributes = entry?.attributes ?? entry;
+        if (attributes) {
+          setFooterConfig({ id: entry?.id, ...attributes });
         }
       } catch (err) {
         console.error("[footer] failed to load footer config", err);
@@ -100,13 +122,17 @@ export default function Footer() {
     <footer className="bg-[#363636] text-gray-200">
       <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-16">
         {/* CMS COLUMNS */}
-        {footerColumns.map((col) => {
+        {footerColumns.map((col, colIndex) => {
           const items = useFooterConfig ? col.links || [] : group(col.level);
+          const columnTitle =
+            col.title || pickFirstString(col, ["id", "links"]);
+          const columnKey =
+            col.id ?? columnTitle ?? col.level ?? `col-${colIndex}`;
 
           return (
-            <div key={col.title || col.level}>
+            <div key={columnKey}>
               <h4 className="text-sm font-semibold tracking-widest mb-4">
-                {col.title}
+                {columnTitle || col.level || "Links"}
               </h4>
 
               <ul className="space-y-2 text-sm">
@@ -119,18 +145,32 @@ export default function Footer() {
                 )}
 
                 {useFooterConfig
-                  ? items.map((link, index) => (
-                      <li key={`${link.label}-${index}`}>
-                        <Link
-                          href={link.href || "#"}
-                          className="hover:underline text-gray-300"
-                        >
-                          {link.label}
-                        </Link>
-                      </li>
-                    ))
-                  : items.map((page) => (
-                      <li key={page.slug}>
+                  ? items.map((link, index) => {
+                      const linkLabel =
+                        link.label || pickFirstString(link, ["id", "href"]);
+                      const rawHref = link.href || link.url || "#";
+                      const linkHref = resolveFooterHref(rawHref);
+                      const linkKey =
+                        link.id ??
+                        linkLabel ??
+                        linkHref ??
+                        `link-${colIndex}-${index}`;
+                      if (!linkLabel) return null;
+                      return (
+                        <li key={linkKey}>
+                          <Link
+                            href={linkHref}
+                            target={link.openInNewTab ? "_blank" : undefined}
+                            rel={link.openInNewTab ? "noreferrer" : undefined}
+                            className="hover:underline text-gray-300"
+                          >
+                            {linkLabel}
+                          </Link>
+                        </li>
+                      );
+                    })
+                  : items.map((page, index) => (
+                      <li key={page.id ?? page.slug ?? `page-${index}`}>
                         <Link
                           href={`/cms/${page.slug}`}
                           className="hover:underline text-gray-300"
@@ -155,7 +195,7 @@ export default function Footer() {
               const Icon = ICON_MAP[social.icon];
               // console.log("-=-=--= item in teh visibleSocials -=-=-", social);
               return (
-                <li key={i}>
+                <li key={social.id ?? social.label ?? `social-${i}`}>
                   <Link
                     href={social.url}
                     target="_blank"
