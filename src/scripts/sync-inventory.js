@@ -149,4 +149,22 @@ async function applyPandaUpdates(records) {
 
     try {
       const result = await Book.bulkWrite(ops, { ordered: false });
-      stats.updated  += result.modifiedCount || 0
+      stats.updated  += result.modifiedCount || 0;
+    } catch (err) {
+      stats.errors += batch.length;
+      console.error(`[sync-inventory] Bulk update error:`, err.message);
+    }
+  }
+
+  return stats;
+}
+
+// ---------------------------------------------------------------------------
+// Entry point — surfaces errors instead of swallowing them.
+// ---------------------------------------------------------------------------
+run()
+  .then(() => process.exit(0))
+  .catch(err => {
+    console.error('\n[sync-inventory] FATAL:', err.stack || err.message || err);
+    process.exit(1);
+  });

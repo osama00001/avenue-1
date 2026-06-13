@@ -85,4 +85,23 @@ async function run() {
       }
 
       fs.unlinkSync(localPath);
-   
+    }
+  } catch (err) {
+    console.error(`[sync-avail] Error processing ${file.name}:`, err.message);
+  } finally {
+    await close();
+  }
+
+  console.log(`[sync-avail] Updated ${totalUpdated} books`);
+  process.exit(0);
+}
+
+// ---------------------------------------------------------------------------
+// Entry point — surfaces errors instead of swallowing them.
+// ---------------------------------------------------------------------------
+run()
+  .then(() => process.exit(0))
+  .catch(err => {
+    console.error('\n[sync-avail] FATAL:', err.stack || err.message || err);
+    process.exit(1);
+  });
