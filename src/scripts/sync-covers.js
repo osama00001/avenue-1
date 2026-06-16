@@ -12,7 +12,7 @@
  * Modes:
  *   node src/scripts/sync-covers.js             → full sync (all prefix dirs)
  *   node src/scripts/sync-covers.js --update    → weekly delta ZIPs
- *   node src/scripts/sync-covers.js --no-link   → download only, skip Mongo writes
+ *   node src/scripts/sync-covers.js --no-link   → download only, skip Mongo write
  *
  * After download:
  *   - Files are saved to covers_storage/{ISBN13}.{ext}
