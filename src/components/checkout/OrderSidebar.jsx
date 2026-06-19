@@ -44,7 +44,7 @@ export default function OrderSidebar({
       <div className="border border-gray-200 bg-white p-4">
         <h3 className="text-base font-semibold mb-3">Your order</h3>
 
-        <div className="text-[#FF6A00] underline mb-3">
+        <div className="text-[#1a1a1a] underline mb-3">
           {itemCount} item{itemCount === 1 ? "" : "s"}
         </div>
 

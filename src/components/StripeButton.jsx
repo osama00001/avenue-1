@@ -52,7 +52,7 @@ export default function StripeButton({ amount, userId, cart, selectedAddress }) 
       stripe={stripePromise}
       options={{
         clientSecret,
-        appearance: { theme: "stripe", variables: { colorPrimary: "#FF6A00" } },
+        appearance: { theme: "stripe", variables: { colorPrimary: "#1a1a1a" } },
       }}
     >
       <CardForm
@@ -145,7 +145,7 @@ function CardForm({ userId, cart, selectedAddress, paymentIntentId }) {
         className={`w-full py-3 rounded-lg text-white ${
           submitting
             ? "bg-gray-400 cursor-not-allowed"
-            : "bg-[#FF6A00] hover:bg-[#e86406] cursor-pointer"
+            : "bg-[#1a1a1a] hover:bg-[#262626] cursor-pointer"
         }`}
       >
         {submitting ? "Processing…" : "Pay Now"}

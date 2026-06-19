@@ -55,7 +55,7 @@ function CartQuantitySelector({ quantity, onUpdate }) {
         }}
         placeholder="Qty"
         autoFocus
-        className="border border-gray-300 px-2 py-1 text-sm w-16 focus:outline-none focus:border-[#FF6A00]"
+        className="border border-gray-300 px-2 py-1 text-sm w-16 focus:outline-none focus:border-[#1a1a1a]"
       />
     );
   }
@@ -71,7 +71,7 @@ function CartQuantitySelector({ quantity, onUpdate }) {
           onUpdate(Number(e.target.value));
         }
       }}
-      className="border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:border-[#FF6A00] cursor-pointer"
+      className="border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:border-[#1a1a1a] cursor-pointer"
     >
       {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
         <option key={n} value={n}>
@@ -132,10 +132,10 @@ export default function CartPage() {
       <div className="max-w-5xl mx-auto px-4 py-6">
         {/* TOP CHROME */}
         <div className="flex items-center justify-between text-sm mb-5">
-          <Link href="/" className="text-[#FF6A00] hover:underline">
+          <Link href="/" className="text-[#000000] hover:underline">
             &lt; Back to shopping
           </Link>
-          <Link href="/" className="text-[#FF6A00] hover:underline">
+          <Link href="/" className="text-[#000000] hover:underline">
             Help
           </Link>
         </div>
@@ -148,7 +148,7 @@ export default function CartPage() {
             <h2 className="text-2xl font-bold mb-4">Your basket is empty</h2>
             <Link
               href="/"
-              className="bg-[#FF6A00] text-white px-6 py-3 inline-block hover:bg-[#e86406]"
+              className="bg-[#1a1a1a] text-white px-6 py-3 inline-block hover:bg-[#e86406]"
             >
               Continue Shopping
             </Link>
@@ -228,7 +228,7 @@ export default function CartPage() {
                               toast.success("Item removed from basket");
                             }
                           }}
-                          className="text-[#FF6A00] text-sm underline mt-2 cursor-pointer"
+                          className="text-[#1a1a1a] text-sm underline mt-2 cursor-pointer"
                         >
                           Remove
                         </button>
@@ -260,7 +260,7 @@ export default function CartPage() {
                 <div className="flex justify-end p-5 bg-gray-50">
                   <button
                     onClick={handleNext}
-                    className="bg-[#FF6A00] text-white px-8 py-3 font-semibold cursor-pointer hover:bg-[#e86406]"
+                    className="bg-[#1a1a1a] text-white px-8 py-3 font-semibold cursor-pointer hover:bg-[#262626] transition"
                   >
                     NEXT: DELIVERY
                   </button>

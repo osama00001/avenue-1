@@ -273,10 +273,10 @@ const Page = () => {
       <div className="max-w-5xl mx-auto px-4 py-6">
         {/* TOP CHROME */}
         <div className="flex items-center justify-between text-sm mb-5">
-          <Link href="/cart" className="text-[#FF6A00] hover:underline">
+          <Link href="/cart" className="text-[#000000] hover:underline">
             &lt; Back to shopping
           </Link>
-          <Link href="/" className="text-[#FF6A00] hover:underline">
+          <Link href="/" className="text-[#000000] hover:underline">
             Help
           </Link>
         </div>
@@ -316,7 +316,7 @@ const Page = () => {
                               <div className="font-medium">
                                 {addr.label}
                                 {addr.isDefault && (
-                                  <span className="ml-2 text-xs bg-[#FF6A00] text-white px-2 py-0.5">
+                                  <span className="ml-2 text-xs bg-[#1a1a1a] text-white px-2 py-0.5">
                                     Default
                                   </span>
                                 )}
@@ -346,7 +346,7 @@ const Page = () => {
                           setShowAddAddress(true);
                         }}
                         >
-                          <span className="text-sm font-medium text-[#FF6A00]"
+                          <span className="text-sm font-medium text-[#000000]"
                           >
                             {addresses.length === 0
                               ? "Add delivery address"
@@ -391,7 +391,7 @@ const Page = () => {
                               name="hasAccount"
                               checked={form.hasAccount === opt}
                               onChange={() => setField("hasAccount", opt)}
-                              className="accent-[#FF6A00]"
+                              className="accent-[#1a1a1a]"
                             />
                             <span className="capitalize">{opt}</span>
                           </label>
@@ -425,7 +425,7 @@ const Page = () => {
                             onClick={() =>
                               router.push("/auth/user/register")
                             }
-                            className="bg-[#FF6A00] text-white px-6 py-2 font-semibold hover:bg-[#e86406] cursor-pointer"
+                            className="bg-[#1a1a1a] text-white px-6 py-2 font-semibold hover:bg-[#e86406] cursor-pointer"
                           >
                             CREATE AN ACCOUNT
                           </button>
@@ -441,7 +441,7 @@ const Page = () => {
                     disabled={!canProceedToPayment}
                     className={`px-8 py-3 font-semibold text-white ${
                       canProceedToPayment
-                        ? "bg-[#FF6A00] hover:bg-[#e86406] cursor-pointer"
+                        ? "bg-[#1a1a1a] hover:bg-[#262626] cursor-pointer"
                         : "bg-gray-300 cursor-not-allowed"
                     }`}
                   >
@@ -466,10 +466,10 @@ const Page = () => {
                       >
                         <span
                           className={`w-4 h-4 rounded-full border flex items-center justify-center
-                            ${method === m.id ? "border-[#FF6A00]" : "border-gray-400"}`}
+                            ${method === m.id ? "border-[#1a1a1a]" : "border-gray-400"}`}
                         >
                           {method === m.id && (
-                            <span className="w-2 h-2 rounded-full bg-[#FF6A00]" />
+                            <span className="w-2 h-2 rounded-full bg-[#1a1a1a]" />
                           )}
                         </span>
                         <input
@@ -479,7 +479,7 @@ const Page = () => {
                           checked={method === m.id}
                           onChange={() => setMethod(m.id)}
                         />
-                        <span className="flex-1 text-[#FF6A00]">{m.label}</span>
+                        <span className="flex-1 text-[#000000]">{m.label}</span>
                         {m.icon}
                       </label>
                     ))}
@@ -491,7 +491,7 @@ const Page = () => {
                       <button
                         onClick={handleCOD}
                         disabled={placing}
-                        className="w-full py-3 bg-[#FF6A00] hover:bg-[#e86406] text-white font-semibold cursor-pointer disabled:bg-gray-400"
+                        className="w-full py-3 bg-[#1a1a1a] hover:bg-[#262626] text-white font-semibold cursor-pointer disabled:bg-gray-400"
                       >
                         {placing ? "Placing Order..." : "PLACE ORDER"}
                       </button>
@@ -533,16 +533,16 @@ const Page = () => {
 };
 
 const inputCls =
-  "w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-[#FF6A00]";
+  "w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-[#1a1a1a]";
 
 function RadioDot({ checked, onChange, name }) {
   return (
     <>
       <span
         className={`w-4 h-4 mt-0.5 rounded-full border flex-shrink-0 flex items-center justify-center
-          ${checked ? "border-[#FF6A00]" : "border-gray-400"}`}
+          ${checked ? "border-[#1a1a1a]" : "border-gray-400"}`}
       >
-        {checked && <span className="w-2 h-2 rounded-full bg-[#FF6A00]" />}
+        {checked && <span className="w-2 h-2 rounded-full bg-[#1a1a1a]" />}
       </span>
       <input
         type="radio"
@@ -585,7 +585,7 @@ function CheckoutLoginForm({
 
       <Link
         href="/auth/user/forgot-password"
-        className="text-sm text-[#FF6A00] underline inline-block"
+        className="text-sm text-[#000000] underline inline-block"
       >
         Forgot password
       </Link>
@@ -613,7 +613,7 @@ function CheckoutLoginForm({
         <button
           type="submit"
           disabled={loading}
-          className="px-8 py-2.5 font-semibold text-white bg-[#FF6A00] hover:bg-[#e86406] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-8 py-2.5 font-semibold text-white bg-[#1a1a1a] hover:bg-[#e86406] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? "SIGNING IN..." : "SIGN IN"}
         </button>

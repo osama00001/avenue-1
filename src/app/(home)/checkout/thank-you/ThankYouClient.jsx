@@ -62,7 +62,7 @@ const ThankYouClient = () => {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button
             onClick={() => router.push("/")}
-            className="bg-[#FF6A00] cursor-pointer text-white px-6 py-3 rounded-lg hover:bg-[#db5d03] transition font-medium"
+            className="bg-[#1a1a1a] cursor-pointer text-white px-6 py-3 rounded-lg hover:bg-[#262626] transition font-medium"
           >
             Continue Shopping
           </button>

@@ -15,7 +15,7 @@ const STEPS = [
   { id: "payment", label: "PAYMENT", href: "/checkout" },
 ];
 
-const TEAL = "#FF6A00";
+const STEP_BG = "#1a1a1a";
 
 export default function CheckoutSteps({ current = "basket", onStepClick }) {
   const router = useRouter();
@@ -57,7 +57,7 @@ export default function CheckoutSteps({ current = "basket", onStepClick }) {
               ${isActive || isDone ? "text-white" : "text-gray-500"}
               ${clickable ? "cursor-pointer" : "cursor-default"}`}
             style={{
-              backgroundColor: isActive || isDone ? TEAL : "#d9dcdd",
+              backgroundColor: isActive || isDone ? STEP_BG : "#d9dcdd",
               clipPath: index === 0 ? firstClip : clip,
             }}
           >

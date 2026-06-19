@@ -373,4 +373,5 @@ if (process.argv[1] && process.argv[1].endsWith('onix-parser.js')) {
     count++;
   });
 
-  console.log(`\nParsed ${stats.total} products to
+  console.log(`\nParsed ${stats.total} products to Book objects.`);
+}

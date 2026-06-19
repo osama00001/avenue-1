@@ -109,7 +109,7 @@ const {user} = useSelector(state =>state?.user);
             <button
               type="submit"
               disabled={saving}
-              className="w-full cursor-pointer bg-teal-700 text-white py-3 rounded-lg hover:bg-teal-800 transition"
+              className="w-full cursor-pointer bg-[#1a1a1a] text-white py-3 rounded-lg hover:bg-[#262626] transition"
             >
               {saving ? "Saving..." : "Add Address"}
             </button>
