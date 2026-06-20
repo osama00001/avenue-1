@@ -14,8 +14,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Avenue Book Store",
-  description: "UK best book store",
+  title: {
+    default:
+      "The best deals on books, fiction, nonfiction and children's books at Avenue Bookstore",
+    template: "%s | Avenue Bookstore",
+  },
+  description:
+    "The Avenue Bookstore brings you the best deals on books, stationery and gifts. Fiction, nonfiction and children's books of all genres and ages await. Great deals and free next day delivery on books.",
 };
 
 export default function RootLayout({ children }) {
