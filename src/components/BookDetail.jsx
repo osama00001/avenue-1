@@ -7,7 +7,7 @@ import parse from "html-react-parser";
 import afterDiscountPrice from "@/lib/afterDiscountPrice";
 import { getProductFormLabel } from "@/lib/productFormLabels";
 import { addToCart } from "@/store/cartSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
 
 const formatDate = (dateStr) => {
@@ -29,6 +29,9 @@ const formatDate = (dateStr) => {
 export default function BookDetail({ book }) {
   const router = useRouter();
   const dispatch = useDispatch();
+  const { user } = useSelector((s) => s.user);
+  const [expandDescription, setExpandDescription] = useState(false);
+  const [selectedFormatId, setSelectedFormatId] = useState(book?._id ?? null);
 
   if (!book) return null;
 
@@ -59,9 +62,6 @@ export default function BookDetail({ book }) {
 
   const price = afterDiscountPrice(originalPrice, discountPercent);
 
-  const [expandDescription, setExpandDescription] = useState(false);
-  const [selectedFormatId, setSelectedFormatId] = useState(book._id);
-
   const formats = [
     {
       id: book._id,
@@ -81,7 +81,7 @@ export default function BookDetail({ book }) {
 
   return (
     <div className="max-w-7xl mx-auto text-black px-4 py-10 space-y-2">
-      <div className="grid cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="p-4 flex justify-center">
           <div className="relative w-[320px] h-[480px] bg-gray-100">
             <Image
