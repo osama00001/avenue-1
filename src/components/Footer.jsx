@@ -6,6 +6,10 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { fetchCMSPages } from "@/store/cmsSlice";
 import { fetchSocialLinks } from "@/store/socialSlice";
+import {
+  COOKIE_PREFERENCES_SELECTOR,
+  isManageCookiesLink,
+} from "@/lib/legalLinks";
 
 import {
   faXTwitter,
@@ -156,10 +160,27 @@ export default function Footer() {
                         linkHref ??
                         `link-${colIndex}-${index}`;
                       if (!linkLabel) return null;
+                      const manageCookies = isManageCookiesLink(
+                        linkHref,
+                        linkLabel
+                      );
                       return (
                         <li key={linkKey}>
                           <Link
-                            href={linkHref}
+                            href={manageCookies ? "#" : linkHref}
+                            id={
+                              manageCookies
+                                ? COOKIE_PREFERENCES_SELECTOR.slice(1)
+                                : undefined
+                            }
+                            onClick={
+                              manageCookies
+                                ? (e) => {
+                                    e.preventDefault();
+                                    window.cookieconsent?.openPreferencesCenter?.();
+                                  }
+                                : undefined
+                            }
                             target={link.openInNewTab ? "_blank" : undefined}
                             rel={link.openInNewTab ? "noreferrer" : undefined}
                             className="hover:underline text-gray-300"
@@ -169,16 +190,36 @@ export default function Footer() {
                         </li>
                       );
                     })
-                  : items.map((page, index) => (
-                      <li key={page.id ?? page.slug ?? `page-${index}`}>
-                        <Link
-                          href={`/cms/${page.slug}`}
-                          className="hover:underline text-gray-300"
-                        >
-                          {page.title}
-                        </Link>
-                      </li>
-                    ))}
+                  : items.map((page, index) => {
+                      const pageHref = `/cms/${page.slug}`;
+                      const manageCookies = isManageCookiesLink(
+                        pageHref,
+                        page.title
+                      );
+                      return (
+                        <li key={page.id ?? page.slug ?? `page-${index}`}>
+                          <Link
+                            href={manageCookies ? "#" : pageHref}
+                            id={
+                              manageCookies
+                                ? COOKIE_PREFERENCES_SELECTOR.slice(1)
+                                : undefined
+                            }
+                            onClick={
+                              manageCookies
+                                ? (e) => {
+                                    e.preventDefault();
+                                    window.cookieconsent?.openPreferencesCenter?.();
+                                  }
+                                : undefined
+                            }
+                            className="hover:underline text-gray-300"
+                          >
+                            {page.title}
+                          </Link>
+                        </li>
+                      );
+                    })}
               </ul>
             </div>
           );

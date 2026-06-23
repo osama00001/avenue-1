@@ -8,4 +8,15 @@ export const LEGAL_LINKS = {
     href: "/cms/privacy-notice",
     label: "Privacy Notice",
   },
+  cookies: {
+    href: "/cms/cookie-policy",
+    label: "Cookie Policy",
+  },
 };
+
+export const COOKIE_PREFERENCES_SELECTOR = "#changePreferences";
+
+export function isManageCookiesLink(href = "", label = "") {
+  const normalized = `${href} ${label}`.toLowerCase();
+  return normalized.includes("manage-cookies") || normalized.includes("manage cookies");
+}

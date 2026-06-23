@@ -329,3 +329,29 @@ img:-moz-broken { visibility: hidden; }
     font-size: 14px;
   }
 }
+
+/* TermsFeed cookie banner — bottom-right corner */
+.termsfeed-com---nb {
+  position: fixed !important;
+  inset: auto 1.25rem 1.25rem auto !important;
+  width: auto !important;
+  max-width: min(22rem, calc(100vw - 2rem)) !important;
+  margin: 0 !important;
+  z-index: 99999 !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18) !important;
+}
+
+.termsfeed-com---nb .cc-nb-buttons {
+  flex-wrap: wrap !important;
+  gap: 0.5rem !important;
+}
+
+@media (max-width: 640px) {
+  .termsfeed-com---nb {
+    left: 1rem !important;
+    right: 1rem !important;
+    bottom: 1rem !important;
+    max-width: none !important;
+  }
+}
