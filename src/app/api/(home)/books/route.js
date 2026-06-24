@@ -77,6 +77,18 @@ const CATEGORY_BUILDERS = {
   }),
 
   paperback_books: () => ({ "descriptiveDetail.productForm": "BC" }),
+  stationery: () => ({
+    $or: [
+      { "descriptiveDetail.productForm": "ZZ" },
+      { "descriptiveDetail.subjects.code": { $regex: "^W" } },
+    ],
+  }),
+  calendars_diaries: () => ({
+    "descriptiveDetail.titles.text": {
+      $regex: "calendar|diary|diaries",
+      $options: "i",
+    },
+  }),
 };
 
 // Sort priority:

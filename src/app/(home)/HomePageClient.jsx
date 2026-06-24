@@ -5,6 +5,10 @@ import Image from "next/image";
 import BannerSlider from "@/components/BannerSlider";
 import SaleHighlights from "@/components/SaleHighlights";
 import ProductSlider from "@/components/ProductSlider";
+import {
+  categorySeeMoreUrl,
+  resolveHomeBannerHref,
+} from "@/lib/homeCategoryLinks";
 import Link from "next/link";
 import BlogSection from "@/components/BlogSection";
 import { useDispatch, useSelector } from "react-redux";
@@ -67,7 +71,6 @@ export default function HomePage() {
   const [bottomBanner, setBottomBanner] = useState(null);
   const [middleBanner, setMiddleBanner] = useState(null);
   const [mainBanner, setMainBanner] = useState(null);
-  const [quickLinks, setQuickLinks] = useState([]);
   const [strapiPending, setStrapiPending] = useState(6);
 
 
@@ -140,12 +143,15 @@ export default function HomePage() {
               slide.image?.data?.url;
             const imageUrl = getStrapiMediaUrl(image);
             if (!imageUrl) return null;
-            return {
+            const slideData = {
               id: slide.id ?? index,
               imageUrl,
               alt: slide.alt || slide.title || "Banner",
-              href: slide.href || "/",
               order: slide.order ?? index,
+            };
+            return {
+              ...slideData,
+              href: resolveHomeBannerHref("carousel", slideData),
             };
           })
           .filter(Boolean)
@@ -182,12 +188,15 @@ export default function HomePage() {
               slide.image?.data?.url;
             const imageUrl = getStrapiMediaUrl(image);
             if (!imageUrl) return null;
-            return {
+            const slideData = {
               id: slide.id ?? index,
               title: slide.title || "Promo",
-              link: slide.href || "/",
               image: imageUrl,
               order: slide.order ?? index,
+            };
+            return {
+              ...slideData,
+              link: resolveHomeBannerHref("promo", slideData),
             };
           })
           .filter(Boolean)
@@ -285,45 +294,6 @@ export default function HomePage() {
     };
 
     loadMainBanner();
-  }, []);
-
-  useEffect(() => {
-    const loadQuickLinks = async () => {
-      try {
-        const res = await fetch("/api/strapi/home-quick-links");
-        if (!res.ok) return;
-        const payload = await res.json();
-        const entry = payload?.data;
-        const attributes = entry?.attributes ?? entry;
-        const items = (attributes?.items || [])
-          .map((item, index) => {
-            const image =
-              item.imageUrl ||
-              item.image?.url ||
-              item.image?.data?.attributes?.url ||
-              item.image?.data?.url;
-            const imageUrl = getStrapiMediaUrl(image);
-            if (!imageUrl) return null;
-            return {
-              id: item.id ?? index,
-              label: item.label,
-              iconSrc: imageUrl,
-              href: item.href || "/",
-              order: item.order ?? index,
-            };
-          })
-          .filter(Boolean)
-          .sort((a, b) => a.order - b.order);
-
-        if (items.length) {
-          setQuickLinks(items);
-        }
-      } catch (err) {
-        console.error("[home] failed to load quick links", err);
-      }
-    };
-
-    loadQuickLinks();
   }, []);
 
   // Only fetch user when a session is confirmed Ã¢â‚¬â€ avoids 401 noise for guests
@@ -568,67 +538,39 @@ export default function HomePage() {
       id: 1,
       label: "Bestsellers",
       iconSrc: "/img/icons/bestseller1.webp",
-      href: "/bestsellers",
+      href: categorySeeMoreUrl("bestsellers"),
     },
     {
       id: 2,
       label: "Fiction",
       iconSrc: "/img/icons/fictionreb1.webp",
-      href: "/fiction",
+      href: categorySeeMoreUrl("fiction"),
     },
     {
       id: 3,
       label: "Non-Fiction",
       iconSrc: "/img/icons/non-fiction1.webp",
-      href: "/non-fiction",
+      href: categorySeeMoreUrl("non_fiction"),
     },
     {
       id: 4,
       label: "Children's",
       iconSrc: "/img/icons/childrens1.webp",
-      href: "/childrens",
+      href: categorySeeMoreUrl("children_books"),
     },
     {
       id: 5,
       label: "Stationery",
       iconSrc: "/img/icons/stationary1.webp",
-      href: "/stationery",
+      href: categorySeeMoreUrl("stationery"),
     },
     {
       id: 6,
       label: "Calendars & Diaries",
       iconSrc: "/img/icons/calenderdiary1.webp",
-      href: "/calendars-diaries",
+      href: categorySeeMoreUrl("calendars_diaries"),
     },
   ];
-
-  const highlights2 = [
-    {
-      id: 1,
-      label: "Bestsellers",
-      iconSrc: "/img/icons/sale_highlight.webp",
-      href: "/bestsellers",
-    },
-    {
-      id: 2,
-      label: "Fiction",
-      iconSrc: "/img/icons/sale-hight-3.webp",
-      href: "/fiction",
-    },
-    {
-      id: 3,
-      label: "Non-Fiction",
-      iconSrc: "/img/icons/sale-higl-4.webp",
-      href: "/non-fiction",
-    },
-    {
-      id: 4,
-      label: "Children's",
-      iconSrc: "/img/icons/salehight-2.webp",
-      href: "/childrens",
-    },
-  ];
-  const highlights2Resolved = quickLinks.length ? quickLinks : highlights2;
 
   const products = [
     {
@@ -727,28 +669,27 @@ export default function HomePage() {
     {
       title: "PROTEIN in 15",
       subtitle: "Protein packed meals from the Body Coach",
-      link: "/",
       image: "/img/sprinkbanner/joewiocl.webp",
     },
     {
       title: "DONUT SQUAD",
       subtitle: "Another sprinkling of madness with the Donut Squad",
-      link: "/",
       image: "/img/sprinkbanner/speinklink.webp",
     },
     {
       title: "NEW BOOKS!",
       subtitle: "The Biggest and Best Publishing Out Now",
-      link: "/",
       image: "/img/sprinkbanner/newbboks.webp",
     },
     {
       title: "NEW BOOKS!",
       subtitle: "The Biggest and Best Publishing Out Now",
-      link: "/",
       image: "/img/sprinkbanner/speinklink.webp",
     },
-  ];
+  ].map((slide) => ({
+    ...slide,
+    link: resolveHomeBannerHref("promo", slide),
+  }));
   const promoSlidesResolved = promoSlides.length
     ? promoSlides
     : fallbackPromoSlides;
@@ -759,33 +700,31 @@ export default function HomePage() {
       id: 1,
       imageUrl: "/banner/1.png",
       alt: "Winter Sale - Up to 50% off",
-      href: "/",
     },
     {
       id: 2,
       imageUrl: "/banner/2.png",
       alt: "New Releases Available Now",
-      href: "/",
     },
     {
       id: 3,
       imageUrl: "/banner/3.jpg",
       alt: "Join Avenue Plus for exclusive perks",
-      href: "/",
     },
     {
       id: 4,
       imageUrl: "/banner/banner4.webp",
       alt: "Join Avenue Plus for exclusive perks",
-      href: "/",
     },
     {
       id: 5,
       imageUrl: "/banner/banner5.webp",
       alt: "Join Avenue Plus for exclusive perks",
-      href: "/",
     },
-  ];
+  ].map((slide) => ({
+    ...slide,
+    href: resolveHomeBannerHref("carousel", slide),
+  }));
   const banners = bannerSlides.length ? bannerSlides : fallbackBanners;
   const strapiLoading = strapiPending > 0;
 
@@ -815,7 +754,7 @@ export default function HomePage() {
 
       <ProductSlider
         title="Our Bestsellers"
-        seeMoreUrl="/"
+        seeMoreUrl={categorySeeMoreUrl("bestsellers")}
         products={row1}
         slidesPerView={5}
         autoplayDelay={2500}
@@ -826,7 +765,7 @@ export default function HomePage() {
 
       <div className="page-width">
         <Link
-          href={promoBanner?.link || "/"}
+          href={resolveHomeBannerHref("promo", promoBanner || {})}
           className="min-w-full block relative"
         >
           {promoBanner?.image &&
@@ -852,7 +791,7 @@ export default function HomePage() {
 
       <ProductSlider
         title="Everyone's Talking About..."
-        seeMoreUrl="/"
+        seeMoreUrl={categorySeeMoreUrl("popular")}
         products={row2}
         slidesPerView={5}
         autoplayDelay={2500}
@@ -863,7 +802,7 @@ export default function HomePage() {
 
       <ProductSlider
         title="New Books"
-        seeMoreUrl="/"
+        seeMoreUrl={categorySeeMoreUrl("new_books")}
         products={row3}
         slidesPerView={5}
         autoplayDelay={2500}
@@ -874,7 +813,7 @@ export default function HomePage() {
 
       <ProductSlider
         title="Highlights"
-        seeMoreUrl="/"
+        seeMoreUrl={categorySeeMoreUrl("highlights")}
         products={row4}
         slidesPerView={5}
         autoplayDelay={2500}
@@ -885,7 +824,7 @@ export default function HomePage() {
 
       <ProductSlider
         title="Signed & Special Editions"
-        seeMoreUrl="/"
+        seeMoreUrl={categorySeeMoreUrl("special_editions")}
         products={row5}
         slidesPerView={5}
         autoplayDelay={2500}
@@ -896,7 +835,7 @@ export default function HomePage() {
 
       <ProductSlider
         title="Coming Soon - The Biggest Books Coming in 2026"
-        seeMoreUrl="/"
+        seeMoreUrl={categorySeeMoreUrl("coming_soon")}
         products={row6}
         slidesPerView={5}
         autoplayDelay={2500}
@@ -907,7 +846,7 @@ export default function HomePage() {
 
       <div className="page-width">
         <Link
-          href={stripBanner?.href || "/"}
+          href={resolveHomeBannerHref("strip", stripBanner || {})}
           className="min-w-full block relative"
         >
           {stripBanner?.imageUrl &&
@@ -933,7 +872,7 @@ export default function HomePage() {
 
       <ProductSlider
         title="Our Best Fiction Books"
-        seeMoreUrl="/"
+        seeMoreUrl={categorySeeMoreUrl("fiction")}
         products={row7}
         slidesPerView={5}
         autoplayDelay={2500}
@@ -944,7 +883,7 @@ export default function HomePage() {
 
       <ProductSlider
         title="Our Best Non-Fiction Books"
-        seeMoreUrl="/"
+        seeMoreUrl={categorySeeMoreUrl("non_fiction")}
         products={row8}
         slidesPerView={5}
         autoplayDelay={2500}
@@ -955,7 +894,7 @@ export default function HomePage() {
 
       <div className="page-width">
         <Link
-          href={mainBanner?.href || "/"}
+          href={resolveHomeBannerHref("main", mainBanner || {})}
           className="min-w-full block relative"
         >
           {mainBanner?.imageUrl &&
@@ -981,7 +920,7 @@ export default function HomePage() {
 
       <ProductSlider
         title="Recently Reviewed"
-        seeMoreUrl="/"
+        seeMoreUrl={categorySeeMoreUrl("recently_reviewed")}
         products={row9}
         slidesPerView={5}
         autoplayDelay={2500}
@@ -992,7 +931,7 @@ export default function HomePage() {
 
       <ProductSlider
         title="Our Bestselling Paperbacks"
-        seeMoreUrl="/"
+        seeMoreUrl={categorySeeMoreUrl("paperback_books")}
         products={row10}
         slidesPerView={5}
         autoplayDelay={2500}
@@ -1001,14 +940,9 @@ export default function HomePage() {
         loop
       />
 
-      <SaleHighlights
-        saletitle="You May Be Looking For..."
-        highlights={highlights2Resolved}
-      />
-
       <ProductSlider
         title="Our Best Children's Books"
-        seeMoreUrl="/"
+        seeMoreUrl={categorySeeMoreUrl("children_books")}
         products={row11}
         slidesPerView={5}
         autoplayDelay={2500}
@@ -1019,7 +953,7 @@ export default function HomePage() {
 
       <div className="page-width">
         <Link
-          href={middleBanner?.href || "/"}
+          href={resolveHomeBannerHref("middle", middleBanner || {})}
           className="min-w-full block relative"
         >
           {middleBanner?.imageUrl &&
@@ -1045,7 +979,7 @@ export default function HomePage() {
 
       <ProductSlider
         title="Language Learning"
-        seeMoreUrl="/"
+        seeMoreUrl={categorySeeMoreUrl("language")}
         products={row12}
         slidesPerView={5}
         autoplayDelay={2500}
@@ -1056,7 +990,7 @@ export default function HomePage() {
 
       <ProductSlider
         title="Games & Puzzles"
-        seeMoreUrl="/"
+        seeMoreUrl={categorySeeMoreUrl("games")}
         products={row13}
         slidesPerView={5}
         autoplayDelay={2500}
@@ -1067,7 +1001,7 @@ export default function HomePage() {
 
       <ProductSlider
         title="Our Best Young Adult Books"
-        seeMoreUrl="/"
+        seeMoreUrl={categorySeeMoreUrl("adult_books")}
         products={row14}
         slidesPerView={5}
         autoplayDelay={2500}
@@ -1078,7 +1012,7 @@ export default function HomePage() {
 
       <div className="page-width">
         <Link
-          href={bottomBanner?.href || "/"}
+          href={resolveHomeBannerHref("bottom", bottomBanner || {})}
           className="min-w-full block relative"
         >
           {bottomBanner?.imageUrl &&

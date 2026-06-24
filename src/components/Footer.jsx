@@ -5,33 +5,31 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { fetchCMSPages } from "@/store/cmsSlice";
-import { fetchSocialLinks } from "@/store/socialSlice";
 import {
   COOKIE_PREFERENCES_SELECTOR,
   isManageCookiesLink,
 } from "@/lib/legalLinks";
-
+import { DEFAULT_SOCIAL_LINKS } from "@/lib/defaultSocialLinks";
 import {
-  faXTwitter,
-  faSquareFacebook,
-  faInstagram,
-  faTiktok,
-  faYoutube,
-  faLinkedin,
-} from "@fortawesome/free-brands-svg-icons";
-
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+  FaXTwitter,
+  FaFacebook,
+  FaInstagram,
+  FaTiktok,
+  FaYoutube,
+  FaLinkedin,
+} from "react-icons/fa6";
 
 /**
- * Map icon string from DB → actual icon object
+ * Map icon string from DB → react-icons component
  */
 const ICON_MAP = {
-  faXTwitter,
-  faSquareFacebook,
-  faInstagram,
-  faTiktok,
-  faYoutube,
-  faLinkedin,
+  faXTwitter: FaXTwitter,
+  faSquareFacebook: FaFacebook,
+  faFacebook: FaFacebook,
+  faInstagram: FaInstagram,
+  faTiktok: FaTiktok,
+  faYoutube: FaYoutube,
+  faLinkedin: FaLinkedin,
 };
 
 const pickFirstString = (obj, exclude = []) => {
@@ -60,7 +58,6 @@ export default function Footer() {
   const [footerConfig, setFooterConfig] = useState(null);
 
   const { list: pages, loading } = useSelector((s) => s.cms);
-  const { links: socialLinks } = useSelector((s) => s.social);
 
   /**
    * ================= LOAD DATA
@@ -68,10 +65,6 @@ export default function Footer() {
   useEffect(() => {
     if (!pages.length) {
       dispatch(fetchCMSPages());
-    }
-
-    if (!socialLinks.length) {
-      dispatch(fetchSocialLinks());
     }
 
     const loadFooter = async () => {
@@ -113,17 +106,14 @@ export default function Footer() {
   
 
   /**
-   * ================= SORT SOCIALS
+   * ================= SOCIALS (icons only — links added later)
    */
-  const visibleSocials = [...socialLinks]
+  const displaySocials = [...DEFAULT_SOCIAL_LINKS]
     .filter((s) => s.enabled)
     .sort((a, b) => a.order - b.order);
 
-    // console.log("-=-= visibleSocials -=-=-=",visibleSocials);
-    // console.log("-=-= socialLinks -=-=-=",socialLinks);
-
   return (
-    <footer className="bg-[#363636] text-gray-200">
+    <footer className="bg-[#e8e8e8] text-gray-900">
       <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-16">
         {/* CMS COLUMNS */}
         {footerColumns.map((col, colIndex) => {
@@ -135,15 +125,15 @@ export default function Footer() {
 
           return (
             <div key={columnKey}>
-              <h4 className="text-sm font-semibold tracking-widest mb-4">
+              <h4 className="text-sm font-semibold tracking-widest mb-4 text-black">
                 {columnTitle || col.level || "Links"}
               </h4>
 
               <ul className="space-y-2 text-sm">
-                {loading && <li className="text-gray-500">Loading...</li>}
+                {loading && <li className="text-gray-600">Loading...</li>}
 
                 {!loading && items.length === 0 && (
-                  <li className="text-gray-500">
+                  <li className="text-gray-600">
                     {useFooterConfig ? "No links" : "No pages"}
                   </li>
                 )}
@@ -183,7 +173,7 @@ export default function Footer() {
                             }
                             target={link.openInNewTab ? "_blank" : undefined}
                             rel={link.openInNewTab ? "noreferrer" : undefined}
-                            className="hover:underline text-gray-300"
+                            className="hover:underline text-gray-800 hover:text-black"
                           >
                             {linkLabel}
                           </Link>
@@ -213,7 +203,7 @@ export default function Footer() {
                                   }
                                 : undefined
                             }
-                            className="hover:underline text-gray-300"
+                            className="hover:underline text-gray-800 hover:text-black"
                           >
                             {page.title}
                           </Link>
@@ -225,43 +215,36 @@ export default function Footer() {
           );
         })}
 
-        {/* SOCIAL (Redux Powered) */}
+        {/* SOCIAL */}
         <div>
-          <h4 className="text-sm font-semibold tracking-widest mb-4">
+          <h4 className="text-sm font-semibold tracking-widest mb-4 text-black">
             FOLLOW US
           </h4>
 
           <ul className="space-y-3 text-sm">
-            {visibleSocials.map((social, i) => {
+            {displaySocials.map((social, i) => {
               const Icon = ICON_MAP[social.icon];
-              // console.log("-=-=--= item in teh visibleSocials -=-=-", social);
               return (
                 <li key={social.id ?? social.label ?? `social-${i}`}>
-                  <Link
-                    href={social.url}
-                    target="_blank"
-                    className="flex items-center gap-3 hover:underline"
-                  >
-                    {Icon && (
-                      <FontAwesomeIcon icon={Icon} className="w-4 h-4" />
+                  <span className="flex items-center gap-3 text-gray-900">
+                    {Icon ? (
+                      <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    ) : (
+                      <span className="h-4 w-4 shrink-0 rounded-full bg-gray-400" />
                     )}
                     <span>{social.label}</span>
-                  </Link>
+                  </span>
                 </li>
               );
             })}
-
-            {!visibleSocials.length && (
-              <li className="text-gray-500">No social links</li>
-            )}
           </ul>
         </div>
       </div>
 
       {/* Legal / company info */}
-      <div className="border-t border-neutral-700 px-6 py-5">
-        <div className="max-w-7xl mx-auto text-center text-xs text-gray-400 leading-relaxed space-y-1">
-          <p className="font-medium text-gray-300">© Avenue, 2026.</p>
+      <div className="border-t border-gray-400 px-6 py-5">
+        <div className="max-w-7xl mx-auto text-center text-xs text-gray-800 leading-relaxed space-y-1">
+          <p className="font-medium text-black">© Avenue, 2026.</p>
           <p>
             Avenue Retail Online Limited. Registered in England and Wales. Company
             Number 16339200. Registered Office 128 City Road London EC1V 2NX

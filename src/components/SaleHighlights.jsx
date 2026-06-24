@@ -7,24 +7,43 @@ export default function SaleHighlights({ highlights, saletitle }) {
       <h2 className="mb-8 italic text-black text-lg font-light">{saletitle}</h2>
 
       <div className="flex justify-center gap-10 flex-wrap">
-        {highlights.map(({ id, label, iconSrc, href }) => (
-          <Link
-            key={id}
-            href={href}
-            className="flex flex-col items-center space-y-3 text-black no-underline hover:text-red-800 transition"
-          >
-            <div className="flex items-center justify-center">
-              <Image
-                src={iconSrc}
-                alt={label}
-                width={1000}
-                height={1000}
-                className="object-cover h-full w-full"
-              />
-            </div>
-            <span className="text-sm font-medium">{label}</span>
-          </Link>
-        ))}
+        {highlights.map(({ id, label, iconSrc, href }) => {
+          const inner = (
+            <>
+              <div className="flex items-center justify-center">
+                <Image
+                  src={iconSrc}
+                  alt={label}
+                  width={1000}
+                  height={1000}
+                  className="object-cover h-full w-full"
+                />
+              </div>
+              <span className="text-sm font-medium">{label}</span>
+            </>
+          );
+
+          if (!href) {
+            return (
+              <div
+                key={id}
+                className="flex flex-col items-center space-y-3 text-black"
+              >
+                {inner}
+              </div>
+            );
+          }
+
+          return (
+            <Link
+              key={id}
+              href={href}
+              className="flex flex-col items-center space-y-3 text-black no-underline hover:text-red-800 transition"
+            >
+              {inner}
+            </Link>
+          );
+        })}
       </div>
     </section>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
@@ -37,9 +38,12 @@ export default function ProductSlider({
           {title && <h2 className="text-2xl italic">{title}</h2>}
 
           {seeMoreUrl && (
-            <a href={seeMoreUrl} className="text-[#FF6A00] font-semibold hover:underline">
+            <Link
+              href={seeMoreUrl}
+              className="text-[#FF6A00] font-semibold hover:underline"
+            >
               SEE MORE
-            </a>
+            </Link>
           )}
         </div>
       )}

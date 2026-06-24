@@ -11,19 +11,23 @@ export const fetchSocialLinks = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await axios.get("/api/strapi/social");
-      return (res.data.data || []).map((entry) => ({
+      const strapiLinks = (res.data.data || []).map((entry) => ({
         id: entry.id,
-        ...(entry.attributes || {}),
+        ...(entry.attributes || entry),
       }));
-    } catch (err) {
-      try {
-        const res = await axios.get("/api/myadmin/social");
-        return res.data.data;
-      } catch (fallbackErr) {
-        return rejectWithValue(
-          err.response?.data?.error || "Failed to load links"
-        );
+
+      if (strapiLinks.length > 0) {
+        return strapiLinks;
       }
+    } catch (err) {
+      // fall through to MongoDB
+    }
+
+    try {
+      const res = await axios.get("/api/myadmin/social");
+      return res.data.data || [];
+    } catch (fallbackErr) {
+      return rejectWithValue("Failed to load links");
     }
   }
 );

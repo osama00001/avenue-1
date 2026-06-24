@@ -8,7 +8,7 @@ const COOKIE_CONSENT_SRC =
   "https://www.termsfeed.com/public/cookie-consent/4.2.0/cookie-consent.js";
 
 const COOKIE_CONSENT_CONFIG = {
-  notice_banner_type: "simple",
+  notice_banner_type: "headline",
   consent_type: "express",
   palette: "light",
   language: "en",
@@ -22,6 +22,29 @@ const COOKIE_CONSENT_CONFIG = {
     "tracking",
     "targeting",
   ],
+  callbacks: {
+    notice_banner_loaded: () => {
+      const banner = document.querySelector(".termsfeed-com---nb");
+      if (!banner) return;
+
+      banner.classList.add("avenue-cookie-bar");
+
+      const main = banner.querySelector(".cc-nb-main-container");
+      const buttons = banner.querySelector(".cc-nb-buttons-container");
+      const title = banner.querySelector(".cc-nb-title");
+      const text = banner.querySelector(".cc-nb-text");
+
+      if (!main || !buttons) return;
+
+      if (!main.querySelector(".avenue-cookie-content")) {
+        const content = document.createElement("div");
+        content.className = "avenue-cookie-content";
+        if (title) content.appendChild(title);
+        if (text) content.appendChild(text);
+        main.insertBefore(content, buttons);
+      }
+    },
+  },
 };
 
 function initCookieConsent() {

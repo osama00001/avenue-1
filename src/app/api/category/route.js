@@ -40,9 +40,33 @@ const CATEGORY_BUILDERS = {
   ebooks:         () => (EBOOK_FILTER),
 
   // Special, non-BIC categories
-  bestsellers:       () => ({ "descriptiveDetail.subjects.code": { $regex: "^H" } }),               // Humanities / Religion
-  popular:           () => ({ "publishingDetail.publishingDate": { $gte: recentDateStr() } }),       // New Books
-  recently_reviewed: () => ({ coverImage: { $exists: true, $nin: [null, ""] } }),                    // Highlights
+  bestsellers:       () => ({ "descriptiveDetail.subjects.code": { $regex: "^H" } }),
+  popular:           () => ({ "publishingDetail.publishingDate": { $gte: recentDateStr() } }),
+  new_books:         () => ({ "publishingDetail.publishingDate": { $gte: recentDateStr() } }),
+  recently_reviewed: () => ({ coverImage: { $exists: true, $nin: [null, ""] } }),
+  highlights:        () => ({ "descriptiveDetail.productForm": { $in: ["BB", "BH", "BK"] } }),
+  special_editions:  () => ({ "descriptiveDetail.productForm": "BB" }),
+  coming_soon: () => ({
+    "publishingDetail.publishingDate": {
+      $gte: new Date().toISOString().slice(0, 10).replace(/-/g, ""),
+    },
+  }),
+  non_fiction: () => ({
+    "descriptiveDetail.subjects.code": { $exists: true, $not: { $regex: "^[FY]" } },
+  }),
+  paperback_books: () => ({ "descriptiveDetail.productForm": "BC" }),
+  stationery: () => ({
+    $or: [
+      { "descriptiveDetail.productForm": "ZZ" },
+      { "descriptiveDetail.subjects.code": { $regex: "^W" } },
+    ],
+  }),
+  calendars_diaries: () => ({
+    "descriptiveDetail.titles.text": {
+      $regex: "calendar|diary|diaries",
+      $options: "i",
+    },
+  }),
 };
 
 const SORT = { isSellable: -1, coverImage: -1, createdAt: -1 };

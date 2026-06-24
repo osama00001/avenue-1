@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { fetchUserCategories } from "@/store/userCategorySlice";
 import ProductCard from "@/components/ProductCard";
 import CategorySidebar from "@/components/CategorySidebar";
+import { getCatalogCategoryTitle } from "@/lib/catalogCategories";
 
 // Deterministic placeholder per list position — ensures each card in a row
 // gets a different cover, and page 2 gets a shifted set of 20 different ones.
@@ -28,10 +29,10 @@ const SubCategory = () => {
   } = useSelector((state) => state.userCategory);
 
   useEffect(() => {
-    if (code && selectedCategory !== code) {
+    if (code) {
       dispatch(fetchUserCategories({ category: code, page: 1 }));
     }
-  }, [code, selectedCategory, dispatch]);
+  }, [code, dispatch]);
 
   const goToPage = (p) => {
     dispatch(fetchUserCategories({ category: code, page: p }));
@@ -83,7 +84,7 @@ const SubCategory = () => {
 
       <main className="flex-1 p-6">
         <h2 className="text-xl font-semibold mb-4 flex items-center gap-2 text-black">
-          Books
+          {getCatalogCategoryTitle(code)}
           {categoryLoading && (
             <span className="text-sm text-gray-400 animate-pulse">
               loading…
