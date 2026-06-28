@@ -10,6 +10,7 @@ import { getSitePageBySlug, listSitePages } from "@/lib/siteContentStore";
 import { connectDB } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 const cmsHeadingFont = Libre_Baskerville({
   subsets: ["latin"],

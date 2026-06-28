@@ -78,8 +78,5 @@ const CmsPageSchema = new mongoose.Schema(
  */
 const MODEL_NAME = "CmsPage";
 
-if (process.env.NODE_ENV !== "production" && mongoose.models[MODEL_NAME]) {
-  mongoose.deleteModel(MODEL_NAME);
-}
-
-export default mongoose.model(MODEL_NAME, CmsPageSchema);
+export default mongoose.models[MODEL_NAME] ||
+  mongoose.model(MODEL_NAME, CmsPageSchema);
