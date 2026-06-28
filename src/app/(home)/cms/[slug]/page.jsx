@@ -7,6 +7,9 @@ import rehypeRaw from "rehype-raw";
 import { TEMPLATE_REGISTRY } from "@/components/templates/registry";
 import CmsNotFound from "@/components/CmsNotFound";
 import { getSitePageBySlug, listSitePages } from "@/lib/siteContentStore";
+import { connectDB } from "@/lib/db";
+
+export const dynamic = "force-dynamic";
 
 const cmsHeadingFont = Libre_Baskerville({
   subsets: ["latin"],
@@ -85,6 +88,13 @@ function renderBlocks(blocks = []) {
 
 export default async function Page({ params }) {
   const { slug } = await params;
+
+  try {
+    await connectDB();
+  } catch (err) {
+    console.error("[cms] database connection failed:", err);
+    throw err;
+  }
 
   const page = await getSitePageBySlug(slug);
   const navPages = (await listSitePages()).filter((entry) => entry?.slug && entry?.title);

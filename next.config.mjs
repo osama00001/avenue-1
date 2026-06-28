@@ -8,9 +8,10 @@ const nextConfig = {
     return [
       { source: "/terms", destination: "/cms/terms", permanent: true },
       { source: "/privacy", destination: "/cms/privacy", permanent: true },
-      { source: "/cms/terms-conditions", destination: "/cms/terms", permanent: true },
-      { source: "/cms/privacy-notice", destination: "/cms/privacy", permanent: true },
       { source: "/cms/cookie-policy", destination: "/cms/cookies", permanent: true },
+      { source: "/cms/privacy-notice", destination: "/cms/privacy", permanent: true },
+      { source: "/cms/terms-conditions", destination: "/cms/terms", permanent: true },
+      { source: "/cms/manage-cookies", destination: "/cms/cookies", permanent: false },
     ];
   },
   images: {

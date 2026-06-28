@@ -28,6 +28,26 @@ app.prepare().then(() => {
                 }
             }
 
+            // Site-content CMS uploads (public/uploads/site-content)
+            if (pathname && pathname.startsWith('/uploads/')) {
+                const filePath = path.join(process.cwd(), 'public', pathname);
+                if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+                    const ext = path.extname(filePath).toLowerCase();
+                    const types = {
+                        '.jpg': 'image/jpeg',
+                        '.jpeg': 'image/jpeg',
+                        '.png': 'image/png',
+                        '.webp': 'image/webp',
+                        '.gif': 'image/gif',
+                        '.svg': 'image/svg+xml',
+                    };
+                    res.setHeader('Content-Type', types[ext] || 'application/octet-stream');
+                    res.setHeader('Cache-Control', 'public, max-age=86400');
+                    fs.createReadStream(filePath).pipe(res);
+                    return;
+                }
+            }
+
             await handle(req, res, parsedUrl);
         } catch (err) {
             console.error('Error occurred handling', req.url, err);
