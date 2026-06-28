@@ -73,18 +73,18 @@ export default function ProductCard({ product }) {
 
         <div
           className={`absolute top-2 right-2 z-10 transition-opacity duration-200 ${
-            inWishlist ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            inWishlist ? "opacity-100" : "opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
           }`}
         >
           <WishlistButton
             bookId={_id}
-            size="sm"
-            className="bg-white/90 hover:bg-white rounded-full p-2 shadow-sm border border-gray-100"
+            size="md"
+            className="p-2 min-w-[44px] min-h-[44px]"
           />
         </div>
 
-        <div className="absolute bottom-0 left-0 w-full bg-gray-100/95 p-3 space-y-2">
-          {isSellable && (
+        <div className="absolute bottom-0 left-0 w-full bg-gray-100/95 p-3">
+          {isSellable ? (
             <button
               type="button"
               onClick={addToBasket}
@@ -93,9 +93,7 @@ export default function ProductCard({ product }) {
             >
               {syncing ? "ADDING…" : (availabilityStatus === "preorder" ? "PRE-ORDER" : "ADD TO BASKET")}
             </button>
-          )}
-
-          {!isSellable && (
+          ) : (
             <button
               type="button"
               disabled

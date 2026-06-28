@@ -9,6 +9,51 @@ const port = process.env.PORT || 3000;
 const app = next({ dev });
 const handle = app.getRequestHandler();
 
+const IMAGE_TYPES = {
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.png': 'image/png',
+    '.webp': 'image/webp',
+    '.gif': 'image/gif',
+    '.svg': 'image/svg+xml',
+};
+
+function contentTypeFor(filePath) {
+    const ext = path.extname(filePath).toLowerCase();
+    return IMAGE_TYPES[ext] || 'application/octet-stream';
+}
+
+/** Book covers may live in covers_storage/ and/or public/covers/ on Plesk. */
+function resolveCoverPath(pathname) {
+    if (!pathname?.startsWith('/covers/')) return null;
+
+    const filename = pathname.slice('/covers/'.length);
+    if (!filename || filename.includes('..')) return null;
+
+    const candidates = [
+        path.join(process.cwd(), 'covers_storage', filename),
+        path.join(process.cwd(), 'public', 'covers', filename),
+    ];
+
+    for (const filePath of candidates) {
+        try {
+            if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+                return filePath;
+            }
+        } catch (_) {
+            // ignore stat errors, try next candidate
+        }
+    }
+
+    return null;
+}
+
+function serveFile(res, filePath, cacheControl) {
+    res.setHeader('Content-Type', contentTypeFor(filePath));
+    res.setHeader('Cache-Control', cacheControl);
+    fs.createReadStream(filePath).pipe(res);
+}
+
 console.log("> Initializing Next.js app...");
 app.prepare().then(() => {
     console.log("> App prepared, starting server...");
@@ -17,33 +62,17 @@ app.prepare().then(() => {
             const parsedUrl = parse(req.url, true);
             const pathname = parsedUrl.pathname;
 
-            // INTERCEPT COVERS AND SERVE DIRECTLY (Bypass Next.js memory limits)
-            if (pathname && pathname.startsWith('/covers/')) {
-                const filePath = path.join(process.cwd(), 'covers_storage', pathname.replace('/covers/', ''));
-                if (fs.existsSync(filePath)) {
-                    res.setHeader('Content-Type', 'image/jpeg');
-                    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-                    fs.createReadStream(filePath).pipe(res);
-                    return;
-                }
+            const coverPath = resolveCoverPath(pathname);
+            if (coverPath) {
+                serveFile(res, coverPath, 'public, max-age=31536000, immutable');
+                return;
             }
 
             // Site-content CMS uploads (public/uploads/site-content)
             if (pathname && pathname.startsWith('/uploads/')) {
                 const filePath = path.join(process.cwd(), 'public', pathname);
                 if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-                    const ext = path.extname(filePath).toLowerCase();
-                    const types = {
-                        '.jpg': 'image/jpeg',
-                        '.jpeg': 'image/jpeg',
-                        '.png': 'image/png',
-                        '.webp': 'image/webp',
-                        '.gif': 'image/gif',
-                        '.svg': 'image/svg+xml',
-                    };
-                    res.setHeader('Content-Type', types[ext] || 'application/octet-stream');
-                    res.setHeader('Cache-Control', 'public, max-age=86400');
-                    fs.createReadStream(filePath).pipe(res);
+                    serveFile(res, filePath, 'public, max-age=86400');
                     return;
                 }
             }

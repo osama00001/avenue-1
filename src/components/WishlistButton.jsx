@@ -35,25 +35,26 @@ export default function WishlistButton({
     }
   };
 
-  const heartBase =
-    "[filter:brightness(0)_saturate(100%)] group-hover:[filter:brightness(0)_saturate(100%)_invert(48%)_sepia(90%)_saturate(1800%)_hue-rotate(360deg)_brightness(100%)_contrast(101%)]";
+  const heartBlack = "[filter:brightness(0)_saturate(100%)]";
+  const heartActive =
+    "[filter:brightness(0)_saturate(100%)_invert(48%)_sepia(90%)_saturate(1800%)_hue-rotate(360deg)_brightness(100%)_contrast(101%)]";
 
   return (
     <button
       type="button"
       onClick={handleClick}
       disabled={syncing}
-      title={title}
+      title={title || (inWishlist ? "Remove from wishlist" : "Add to wishlist")}
       aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
       aria-pressed={inWishlist}
-      className={`group inline-flex items-center justify-center shrink-0 transition disabled:opacity-50 ${className}`}
+      className={`group inline-flex items-center justify-center shrink-0 cursor-pointer transition disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
     >
       <img
         src="/img/heart.webp"
         alt=""
-        className={`${sizeClasses[size] || sizeClasses.md} transition-all duration-200 ${heartBase} ${
-          inWishlist ? "opacity-100 scale-110" : "opacity-80 group-hover:opacity-100"
-        }`}
+        className={`${sizeClasses[size] || sizeClasses.md} transition-all duration-200 ${
+          inWishlist ? heartActive : heartBlack
+        } ${inWishlist ? "opacity-100 scale-110" : "opacity-100"}`}
       />
     </button>
   );

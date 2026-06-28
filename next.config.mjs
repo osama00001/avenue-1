@@ -15,6 +15,10 @@ const nextConfig = {
     ];
   },
   images: {
+    localPatterns: [
+      { pathname: "/covers/**", search: "" },
+      { pathname: "/uploads/**", search: "" },
+    ],
     remotePatterns: [
       {
         protocol: "http",

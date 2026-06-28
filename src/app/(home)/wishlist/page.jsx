@@ -38,7 +38,7 @@ export default function WishlistPage() {
             <img
               src="/img/heart.webp"
               alt=""
-              className="w-10 h-10 mx-auto mb-4 opacity-40"
+              className="w-10 h-10 mx-auto mb-4 [filter:brightness(0)_saturate(100%)]"
             />
             <h2 className="text-xl font-semibold mb-2">Your wishlist is empty</h2>
             <p className="text-gray-600 mb-6 text-sm">
