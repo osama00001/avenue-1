@@ -49,14 +49,14 @@ export default function BannerSlider({
           <Link
             key={id}
             href={href}
-            className="min-w-full block relative"
+            className="min-w-full w-full shrink-0 block relative"
             aria-label={alt}
           >
             {isLocalhost ? (
               <img
                 src={imageUrl}
                 alt={alt}
-                className="object-cover w-full h-64 md:h-96"
+                className="w-full h-auto object-contain"
                 loading={id === 0 ? "eager" : "lazy"}
               />
             ) : (
@@ -65,7 +65,8 @@ export default function BannerSlider({
                 alt={alt}
                 width={1200}
                 height={400}
-                className="object-cover w-full h-64 md:h-96"
+                className="w-full h-auto object-contain"
+                sizes="100vw"
                 priority={id === 0}
               />
             )}

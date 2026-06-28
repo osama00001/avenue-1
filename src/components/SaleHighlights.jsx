@@ -2,9 +2,13 @@ import Link from "next/link";
 import Image from "next/image";
 
 export default function SaleHighlights({ highlights, saletitle }) {
+  if (!highlights?.length) return null;
+
   return (
     <section className="py-10 px-4 max-w-6xl mx-auto text-center">
-      <h2 className="mb-8 italic text-black text-lg font-light">{saletitle}</h2>
+      {saletitle ? (
+        <h2 className="mb-8 italic text-black text-lg font-light">{saletitle}</h2>
+      ) : null}
 
       <div className="flex justify-center gap-10 flex-wrap">
         {highlights.map(({ id, label, iconSrc, href }) => {

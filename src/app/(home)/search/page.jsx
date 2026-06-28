@@ -322,13 +322,13 @@ function SearchPageClient() {
                           <div className="flex-1">
                             {/* TITLE */}
                             <Link href={`/${product.id}`}>
-                              <h2 className="text-lg font-semibold text-[#FF6A00] hover:text-[#FF6A00] cursor-pointer transition mb-2 line-clamp-1">
+                              <h2 className="text-lg font-semibold text-black hover:underline cursor-pointer transition mb-2 line-clamp-1">
                                 {product.title}
                               </h2>
                             </Link>
 
                             {/* AUTHOR */}
-                            <p className="text-gray-700 font-medium mb-2 text-sm">
+                            <p className="text-gray-900 font-medium mb-2 text-sm">
                               {product.author}
                             </p>
 
@@ -398,11 +398,11 @@ function SearchPageClient() {
 
                       <div className="p-4 flex flex-col flex-1">
                         <Link href={`/${product.id}`}>
-                          <h2 className="font-semibold text-[#FF6A00] mb-1 line-clamp-2 text-sm hover:text-[#FF6A00] cursor-pointer transition">
+                          <h2 className="font-semibold text-black mb-1 line-clamp-2 text-sm hover:underline cursor-pointer transition">
                             {product.title}
                           </h2>
                         </Link>
-                        <p className="text-sm text-gray-700 mb-3">
+                        <p className="text-sm text-black mb-3">
                           {product.author}
                         </p>
 

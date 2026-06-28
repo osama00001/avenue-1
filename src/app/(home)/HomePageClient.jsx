@@ -4,10 +4,13 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import BannerSlider from "@/components/BannerSlider";
 import SaleHighlights from "@/components/SaleHighlights";
+import HomeMustReadSection from "@/components/HomeMustReadSection";
 import ProductSlider from "@/components/ProductSlider";
 import {
   categorySeeMoreUrl,
   resolveHomeBannerHref,
+  resolveSaleHighlightHref,
+  resolveStoredHomeHref,
 } from "@/lib/homeCategoryLinks";
 import Link from "next/link";
 import BlogSection from "@/components/BlogSection";
@@ -19,7 +22,7 @@ import { fetchCart } from "@/store/cartSlice";
 import { fetchCategories } from "@/store/categorySlice";
 import { fetchBlogCategories, fetchBlogs } from "@/store/blogSlice";
 import { useSession } from "next-auth/react";
-import { getStrapiMediaUrl } from "@/lib/strapi";
+import { resolveMediaUrl } from "@/lib/mediaUrl";
 
 export default function HomePage() {
   const {
@@ -71,16 +74,22 @@ export default function HomePage() {
   const [bottomBanner, setBottomBanner] = useState(null);
   const [middleBanner, setMiddleBanner] = useState(null);
   const [mainBanner, setMainBanner] = useState(null);
-  const [strapiPending, setStrapiPending] = useState(6);
+  const [quickLinks, setQuickLinks] = useState([]);
+  const [contentLoading, setContentLoading] = useState(true);
 
 
   const { status: sessionStatus } = useSession();
 
   useEffect(() => {
+    dispatch(fetchCart());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (contentLoading) return;
+
     dispatch(
       fetchBooksForHome({ category: "bestsellers", limit: 10, page: 1 })
     );
-    dispatch(fetchCart());
     dispatch(fetchBooksForHome({ category: "popular", limit: 10, page: 2 }));
     dispatch(
       fetchBooksForHome({ category: "new_books", limit: 10, page: 3 })
@@ -122,12 +131,14 @@ export default function HomePage() {
     dispatch(fetchCategories({ page: 1, limit: 50 }));
     dispatch(fetchBlogs());
     dispatch(fetchBlogCategories());
-  }, []);
+  }, [contentLoading, dispatch]);
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadBannerSlides = async () => {
       try {
-        const res = await fetch("/api/strapi/home-banner");
+        const res = await fetch("/api/content/home-banner");
         if (!res.ok) return;
         const payload = await res.json();
         const entry = payload?.data;
@@ -141,17 +152,18 @@ export default function HomePage() {
               slide.image?.url ||
               slide.image?.data?.attributes?.url ||
               slide.image?.data?.url;
-            const imageUrl = getStrapiMediaUrl(image);
+            const imageUrl = resolveMediaUrl(image);
             if (!imageUrl) return null;
             const slideData = {
               id: slide.id ?? index,
               imageUrl,
               alt: slide.alt || slide.title || "Banner",
               order: slide.order ?? index,
+              href: slide.href,
             };
             return {
               ...slideData,
-              href: resolveHomeBannerHref("carousel", slideData),
+              href: resolveStoredHomeHref(slide.href, "carousel", slideData),
             };
           })
           .filter(Boolean)
@@ -162,18 +174,12 @@ export default function HomePage() {
         }
       } catch (err) {
         console.error("[home] failed to load banner slides", err);
-      } finally {
-        setStrapiPending((prev) => Math.max(prev - 1, 0));
       }
     };
 
-    loadBannerSlides();
-  }, []);
-
-  useEffect(() => {
     const loadPromoSlides = async () => {
       try {
-        const res = await fetch("/api/strapi/home-promo");
+        const res = await fetch("/api/content/home-promo");
         if (!res.ok) return;
         const payload = await res.json();
         const entry = payload?.data;
@@ -186,17 +192,18 @@ export default function HomePage() {
               slide.image?.url ||
               slide.image?.data?.attributes?.url ||
               slide.image?.data?.url;
-            const imageUrl = getStrapiMediaUrl(image);
+            const imageUrl = resolveMediaUrl(image);
             if (!imageUrl) return null;
             const slideData = {
               id: slide.id ?? index,
               title: slide.title || "Promo",
               image: imageUrl,
               order: slide.order ?? index,
+              href: slide.href,
             };
             return {
               ...slideData,
-              link: resolveHomeBannerHref("promo", slideData),
+              link: resolveStoredHomeHref(slide.href, "promo", slideData),
             };
           })
           .filter(Boolean)
@@ -207,18 +214,12 @@ export default function HomePage() {
         }
       } catch (err) {
         console.error("[home] failed to load promo slides", err);
-      } finally {
-        setStrapiPending((prev) => Math.max(prev - 1, 0));
       }
     };
 
-    loadPromoSlides();
-  }, []);
-
-  useEffect(() => {
     const loadStripBanner = async () => {
       try {
-        const res = await fetch("/api/strapi/home-strip");
+        const res = await fetch("/api/content/home-strip");
         if (!res.ok) return;
         const payload = await res.json();
         const entry = payload?.data;
@@ -227,18 +228,12 @@ export default function HomePage() {
         }
       } catch (err) {
         console.error("[home] failed to load strip banner", err);
-      } finally {
-        setStrapiPending((prev) => Math.max(prev - 1, 0));
       }
     };
 
-    loadStripBanner();
-  }, []);
-
-  useEffect(() => {
     const loadBottomBanner = async () => {
       try {
-        const res = await fetch("/api/strapi/home-bottom-banner");
+        const res = await fetch("/api/content/home-bottom-banner");
         if (!res.ok) return;
         const payload = await res.json();
         const entry = payload?.data;
@@ -247,39 +242,26 @@ export default function HomePage() {
         }
       } catch (err) {
         console.error("[home] failed to load bottom banner", err);
-      } finally {
-        setStrapiPending((prev) => Math.max(prev - 1, 0));
       }
     };
 
-    loadBottomBanner();
-  }, []);
-
-  useEffect(() => {
     const loadMiddleBanner = async () => {
       try {
-        const res = await fetch("/api/strapi/home-middle-banner");
+        const res = await fetch("/api/content/home-middle-banner");
         if (!res.ok) return;
         const payload = await res.json();
-        console.warn(payload, "payload")
         const entry = payload?.data;
         if (entry?.imageUrl) {
           setMiddleBanner(entry);
         }
       } catch (err) {
         console.error("[home] failed to load middle banner", err);
-      } finally {
-        setStrapiPending((prev) => Math.max(prev - 1, 0));
       }
     };
 
-    loadMiddleBanner();
-  }, []);
-
-  useEffect(() => {
     const loadMainBanner = async () => {
       try {
-        const res = await fetch("/api/strapi/home-main-banner");
+        const res = await fetch("/api/content/home-main-banner");
         if (!res.ok) return;
         const payload = await res.json();
         const entry = payload?.data;
@@ -288,12 +270,76 @@ export default function HomePage() {
         }
       } catch (err) {
         console.error("[home] failed to load main banner", err);
-      } finally {
-        setStrapiPending((prev) => Math.max(prev - 1, 0));
       }
     };
 
-    loadMainBanner();
+    const loadQuickLinks = async () => {
+      try {
+        const res = await fetch("/api/content/home-quick-links");
+        if (!res.ok) return;
+        const payload = await res.json();
+        const entry = payload?.data;
+        const attributes = entry?.attributes ?? entry;
+        const items = (attributes?.items || [])
+          .filter((item) => {
+            if (typeof item.enabled === "boolean") return item.enabled;
+            return !/^\[inactive\]\s*/i.test(String(item.label || ""));
+          })
+          .map((item, index) => {
+            const image =
+              item.imageUrl ||
+              item.image?.url ||
+              item.image?.data?.attributes?.url ||
+              item.image?.data?.url;
+            const imageUrl = image ? resolveMediaUrl(image) : null;
+            const label = String(item.label || "")
+              .replace(/^\[inactive\]\s*/i, "")
+              .trim();
+            const isFeatured =
+              item.isFeatured === true || /must-read/i.test(label);
+            return {
+              id: item.id ?? index,
+              label,
+              alt: item.alt,
+              iconSrc: imageUrl,
+              imageUrl,
+              href: resolveSaleHighlightHref(item.href, label) || item.href,
+              order: item.order ?? index,
+              isFeatured,
+            };
+          })
+          .filter((item) => item.isFeatured || item.imageUrl || item.href)
+          .sort((a, b) => a.order - b.order);
+
+        if (items.length) {
+          setQuickLinks(items);
+        }
+      } catch (err) {
+        console.error("[home] failed to load quick links", err);
+      }
+    };
+
+    const loadHomeContent = async () => {
+      await Promise.all([
+        loadBannerSlides(),
+        loadPromoSlides(),
+        loadStripBanner(),
+        loadBottomBanner(),
+        loadMiddleBanner(),
+        loadMainBanner(),
+        loadQuickLinks(),
+      ]);
+
+      if (!cancelled) {
+        setContentLoading(false);
+      }
+    };
+
+    loadHomeContent();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Only fetch user when a session is confirmed Ã¢â‚¬â€ avoids 401 noise for guests
@@ -533,6 +579,67 @@ export default function HomePage() {
     gift_books,
   ]);
 
+  if (contentLoading) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#FF6A00] border-t-transparent" />
+        <p className="mt-4 text-sm uppercase tracking-[0.3em] text-slate-600">
+          Loading...
+        </p>
+      </div>
+    );
+  }
+
+  const highlights2 = [
+    {
+      id: 1,
+      label: "Bestsellers",
+      iconSrc: "/img/icons/bestseller1.webp",
+      href: categorySeeMoreUrl("bestsellers"),
+    },
+    {
+      id: 2,
+      label: "Fiction",
+      iconSrc: "/img/icons/fictionreb1.webp",
+      href: categorySeeMoreUrl("fiction"),
+    },
+    {
+      id: 3,
+      label: "Non-Fiction",
+      iconSrc: "/img/icons/non-fiction1.webp",
+      href: categorySeeMoreUrl("non_fiction"),
+    },
+    {
+      id: 4,
+      label: "Children's",
+      iconSrc: "/img/icons/childrens1.webp",
+      href: categorySeeMoreUrl("children_books"),
+    },
+  ];
+
+  const isLookingForLabel = (label = "") =>
+    /you may be looking for/i.test(String(label).trim());
+
+  const featuredQuickLink =
+    quickLinks.find((item) => item.isFeatured) ??
+    quickLinks.find((item) => /must-read/i.test(item.label || "")) ??
+    quickLinks.find(
+      (item) =>
+        item.href &&
+        !item.imageUrl &&
+        !isLookingForLabel(item.label)
+    ) ??
+    null;
+  const featuredId = featuredQuickLink?.id;
+  const quickLinkGrid = quickLinks.filter(
+    (item) =>
+      item.id !== featuredId &&
+      !item.isFeatured &&
+      !isLookingForLabel(item.label) &&
+      item.imageUrl
+  );
+  const quickLinkGridResolved = quickLinkGrid.length ? quickLinkGrid : highlights2;
+
   const highlights = [
     {
       id: 1,
@@ -726,18 +833,7 @@ export default function HomePage() {
     href: resolveHomeBannerHref("carousel", slide),
   }));
   const banners = bannerSlides.length ? bannerSlides : fallbackBanners;
-  const strapiLoading = strapiPending > 0;
 
-  if (strapiLoading) {
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#FF6A00] border-t-transparent" />
-        <p className="text-sm uppercase tracking-[0.3em] text-slate-600">
-          Loading...
-        </p>
-      </div>
-    );
-  }
   return (
     <div className="bg-white">
       <BannerSlider
@@ -765,7 +861,7 @@ export default function HomePage() {
 
       <div className="page-width">
         <Link
-          href={resolveHomeBannerHref("promo", promoBanner || {})}
+          href={resolveStoredHomeHref(promoBanner?.href, "promo", promoBanner || {})}
           className="min-w-full block relative"
         >
           {promoBanner?.image &&
@@ -846,7 +942,7 @@ export default function HomePage() {
 
       <div className="page-width">
         <Link
-          href={resolveHomeBannerHref("strip", stripBanner || {})}
+          href={resolveStoredHomeHref(stripBanner?.href, "strip", stripBanner || {})}
           className="min-w-full block relative"
         >
           {stripBanner?.imageUrl &&
@@ -894,7 +990,7 @@ export default function HomePage() {
 
       <div className="page-width">
         <Link
-          href={resolveHomeBannerHref("main", mainBanner || {})}
+          href={resolveStoredHomeHref(mainBanner?.href, "main", mainBanner || {})}
           className="min-w-full block relative"
         >
           {mainBanner?.imageUrl &&
@@ -940,6 +1036,16 @@ export default function HomePage() {
         loop
       />
 
+      {featuredQuickLink ? (
+        <HomeMustReadSection featured={featuredQuickLink} />
+      ) : null}
+
+      {!featuredQuickLink ? (
+        <SaleHighlights highlights={quickLinkGridResolved} />
+      ) : quickLinkGrid.length ? (
+        <SaleHighlights highlights={quickLinkGrid} />
+      ) : null}
+
       <ProductSlider
         title="Our Best Children's Books"
         seeMoreUrl={categorySeeMoreUrl("children_books")}
@@ -953,7 +1059,7 @@ export default function HomePage() {
 
       <div className="page-width">
         <Link
-          href={resolveHomeBannerHref("middle", middleBanner || {})}
+          href={resolveStoredHomeHref(middleBanner?.href, "middle", middleBanner || {})}
           className="min-w-full block relative"
         >
           {middleBanner?.imageUrl &&
@@ -1012,7 +1118,7 @@ export default function HomePage() {
 
       <div className="page-width">
         <Link
-          href={resolveHomeBannerHref("bottom", bottomBanner || {})}
+          href={resolveStoredHomeHref(bottomBanner?.href, "bottom", bottomBanner || {})}
           className="min-w-full block relative"
         >
           {bottomBanner?.imageUrl &&

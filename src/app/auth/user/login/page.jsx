@@ -24,19 +24,11 @@ const LoginPage = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 px-4 py-10">
         <div className="mx-auto max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-10 items-stretch">
           {/* LOGIN CARD */}
-          <div
-            className="rounded-lg border border-[#FF6A00]/30 
-  bg-gradient-to-b from-white via-[#FF6A00]/10 to-[#FF6A00]/20 
-  p-8 h-full"
-          >
+          <div className="rounded-lg border border-gray-200 bg-white p-8 h-full">
             <UserLogin />
           </div>
 
-          <div
-            className="rounded-lg border border-[#FF6A00]/30 
-  bg-gradient-to-b from-white via-[#FF6A00]/10 to-[#FF6A00]/20 
-  p-8 h-full"
-          >
+          <div className="rounded-lg border border-gray-200 bg-white p-8 h-full">
             <NewCustomerCard />
           </div>
         </div>

@@ -89,8 +89,8 @@ export default function UserRegisterPage() {
     <>
       <Header />
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4">
-        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 px-4 py-10">
+        <div className="max-w-2xl mx-auto rounded-lg border border-gray-200 bg-white p-8">
           {/* HEADER */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-serif font-bold text-[#FF6A00] mb-2">
@@ -316,7 +316,7 @@ export default function UserRegisterPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#FF6A00] cursor-pointer text-white py-3 rounded-lg font-semibold text-lg hover:bg-[#df6006] transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-black cursor-pointer text-white py-3 rounded-lg font-semibold text-lg hover:bg-[#FF6A00] transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Creating Account..." : "Create Account"}
             </button>

@@ -15,6 +15,32 @@ import { useState } from "react";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 
+const AUTH_RETURN_PATHS = ["/auth/user/login", "/auth/user/register"];
+
+function resolvePostLoginPath(callbackUrl) {
+  const fallback = "/";
+  if (!callbackUrl) return fallback;
+
+  let path = String(callbackUrl).trim();
+  if (!path.startsWith("/")) {
+    try {
+      path = new URL(path).pathname;
+    } catch {
+      return fallback;
+    }
+  }
+
+  if (
+    AUTH_RETURN_PATHS.some(
+      (authPath) => path === authPath || path.startsWith(`${authPath}/`)
+    )
+  ) {
+    return fallback;
+  }
+
+  return path;
+}
+
 /* ---------------- Validation Schema ---------------- */
 const loginSchema = Yup.object({
   email: Yup.string()
@@ -66,8 +92,12 @@ export default function UserLogin() {
         }
       }
 
-      // Default success flow
-      router.back(); // dashboard / profile
+      const callbackUrl =
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search).get("callbackUrl")
+          : null;
+      const nextPath = resolvePostLoginPath(callbackUrl);
+      router.push(nextPath);
     } catch (err) {
       console.error("Login error:", err);
       setServerError("Something went wrong. Please try again.");
@@ -168,7 +198,7 @@ export default function UserLogin() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-[#FF6A00] cursor-pointer text-white py-3 rounded-lg font-semibold hover:bg-[#d35b05] transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-black cursor-pointer text-white py-3 rounded-lg font-semibold hover:bg-[#FF6A00] transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? "Signing in..." : "Sign In"}
             </button>

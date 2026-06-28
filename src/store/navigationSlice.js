@@ -5,7 +5,7 @@ export const fetchNavigation = createAsyncThunk(
   "navigation/fetch",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axios.get("/api/strapi/navigation");
+      const res = await axios.get("/api/content/navigation");
       const entry = res.data.data;
       return entry
         ? {

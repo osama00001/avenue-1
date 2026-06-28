@@ -32,7 +32,7 @@ export default function CheckoutSteps({ current = "basket", onStepClick }) {
   };
 
   return (
-    <div className="flex w-full select-none overflow-hidden">
+    <div className="flex w-full select-none overflow-x-auto md:overflow-hidden checkout-steps-scroll pb-1 md:pb-0">
       {STEPS.map((step, index) => {
         const isActive = index === currentIndex;
         const isDone = index < currentIndex;
@@ -53,7 +53,7 @@ export default function CheckoutSteps({ current = "basket", onStepClick }) {
             type="button"
             disabled={!clickable}
             onClick={() => handleClick(step, index)}
-            className={`relative flex-1 -ml-3 first:ml-0 py-3.5 text-center text-xs sm:text-sm font-semibold tracking-wide transition-colors
+            className={`relative flex-1 min-w-0 -ml-2 sm:-ml-3 first:ml-0 py-3 sm:py-3.5 text-center text-[11px] sm:text-sm font-semibold tracking-wide transition-colors
               ${isActive || isDone ? "text-white" : "text-gray-500"}
               ${clickable ? "cursor-pointer" : "cursor-default"}`}
             style={{

@@ -1,15 +1,15 @@
-/** Canonical legal page URLs — must match Strapi footer link paths. */
+/** Canonical legal page URLs — must match CMS page slugs in MongoDB. */
 export const LEGAL_LINKS = {
   terms: {
-    href: "/cms/terms-conditions",
+    href: "/cms/terms",
     label: "Terms & Conditions",
   },
   privacy: {
-    href: "/cms/privacy-notice",
+    href: "/cms/privacy",
     label: "Privacy Notice",
   },
   cookies: {
-    href: "/cms/cookie-policy",
+    href: "/cms/cookies",
     label: "Cookie Policy",
   },
 };

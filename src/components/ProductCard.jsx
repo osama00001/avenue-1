@@ -7,13 +7,16 @@ import afterDiscountPrice from "@/lib/afterDiscountPrice";
 import { addToCart } from "@/store/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
+import WishlistButton from "@/components/WishlistButton";
 
 export default function ProductCard({ product }) {
   const dispatch = useDispatch();
   const { syncing } = useSelector((s) => s.cart);
+  const { bookIds } = useSelector((s) => s.wishlist);
   const [imgError, setImgError] = useState(false);
 
   const { _id, image, availabilityStatus, isSellable } = product;
+  const inWishlist = bookIds.includes(String(_id));
 
   // ---------------- TITLE ----------------
   const title = product?.descriptiveDetail?.titles?.[0]?.text || "Untitled";
@@ -48,7 +51,7 @@ export default function ProductCard({ product }) {
   };
 
   return (
-    <Link href={`/${_id}`} className="group shrink-0 block">
+    <Link href={`/${_id}`} className="group shrink-0 block text-black no-underline visited:text-black hover:text-black">
       {/* IMAGE */}
       <div className="relative w-full h-[340px] overflow-hidden bg-gray-100 flex items-center justify-center">
         {image && image.length > 5 && !image.includes("undefined") && !imgError ? (
@@ -67,6 +70,18 @@ export default function ProductCard({ product }) {
             </span>
           </div>
         )}
+
+        <div
+          className={`absolute top-2 right-2 z-10 transition-opacity duration-200 ${
+            inWishlist ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+          }`}
+        >
+          <WishlistButton
+            bookId={_id}
+            size="sm"
+            className="bg-white/90 hover:bg-white rounded-full p-2 shadow-sm border border-gray-100"
+          />
+        </div>
 
         <div className="absolute bottom-0 left-0 w-full bg-gray-100/95 p-3 space-y-2">
           {isSellable && (
@@ -94,8 +109,8 @@ export default function ProductCard({ product }) {
 
       {/* INFO */}
       <div className="mt-3 space-y-1 text-black">
-        <h3 className="text-sm font-semibold leading-tight line-clamp-2 h-10">{title}</h3>
-        {author && <p className="text-sm text-[#FF6A00] font-medium truncate">{author}</p>}
+        <h3 className="text-sm font-semibold leading-tight line-clamp-2 h-10 text-black">{title}</h3>
+        {author && <p className="text-sm text-black font-medium truncate">{author}</p>}
         {format && <p className="text-sm text-gray-600 capitalize">{format}</p>}
         {finalPrice !== null ? (
           <div className="flex gap-2 text-sm font-semibold">

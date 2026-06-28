@@ -160,7 +160,7 @@ async function applyDispatchUpdates(records) {
         { 'gardnersFulfilment.gardnersRef': rec.gardnersRef },
         {
           $set: {
-            status:                                 'dispatched',
+            status:                                 'shipped',
             'gardnersFulfilment.dispatchNo':        rec.dispatchNo,
             'gardnersFulfilment.trackingNumber':    rec.trackingNumber,
             'gardnersFulfilment.carrier':           rec.carrier,

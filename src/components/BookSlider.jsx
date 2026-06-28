@@ -9,7 +9,7 @@ import "swiper/css/pagination";
 
 export default function BookSlider({ slides, slidespace, slidesitem }) {
   return (
-    <div className="page-width">
+    <div className="page-width [--swiper-navigation-color:#FF6A00] [--swiper-theme-color:#FF6A00]">
       <Swiper
         modules={[Navigation, Autoplay]}
         navigation

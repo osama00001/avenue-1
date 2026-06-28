@@ -1,14 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import parse from "html-react-parser";
 import afterDiscountPrice from "@/lib/afterDiscountPrice";
 import BookFormatSection from "@/components/BookFormatSection";
 import { addToCart } from "@/store/cartSlice";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import toast from "react-hot-toast";
+import WishlistButton from "@/components/WishlistButton";
 
 const formatDate = (dateStr) => {
   if (!dateStr || dateStr.length !== 8) return null;
@@ -27,9 +27,7 @@ const formatDate = (dateStr) => {
 };
 
 export default function BookDetail({ book }) {
-  const router = useRouter();
   const dispatch = useDispatch();
-  const { user } = useSelector((s) => s.user);
   const [expandDescription, setExpandDescription] = useState(false);
   const [imgError, setImgError] = useState(false);
 
@@ -93,8 +91,8 @@ export default function BookDetail({ book }) {
 
         <div className="lg:col-span-1 space-y-6">
           <div>
-            <h1 className="text-3xl font-serif font-semibold mb-3">{title}</h1>
-            <h2 className="text-xl font-semibold mb-2">by {book.author}</h2>
+            <h1 className="text-3xl font-serif font-semibold text-black mb-3">{title}</h1>
+            <h2 className="text-xl font-semibold text-black mb-2">by {book.author}</h2>
 
             {book.series && (
               <p className="text-sm text-green-700 mb-6">
@@ -124,14 +122,11 @@ export default function BookDetail({ book }) {
                 book?.availabilityStatus
               ) && (
                 <div className="flex flex-col sm:flex-row gap-3">
-                  {!user && (
-                    <button
-                      onClick={() => router.push("/auth/user/login")}
-                      className="w-full border cursor-pointer text-black px-6 py-3 font-semibold hover:bg-black hover:text-white transition"
-                    >
-                      Sign in to Add to Wishlist
-                    </button>
-                  )}
+                  <WishlistButton
+                    bookId={book._id}
+                    size="lg"
+                    className="border border-gray-300 px-4 py-3 min-w-[3rem] bg-white hover:border-[#FF6A00]"
+                  />
 
                   <button
                     onClick={addToBasket}

@@ -120,6 +120,7 @@ const cartSlice = createSlice({
     items: [],
     loading: false,
     syncing: false,
+    addingBookId: null,
     error: null,
   },
 
@@ -151,15 +152,18 @@ const cartSlice = createSlice({
       /**
        * ADD ITEM
        */
-      .addCase(addToCart.pending, (state) => {
+      .addCase(addToCart.pending, (state, action) => {
         state.syncing = true;
+        state.addingBookId = String(action.meta.arg.bookId);
       })
       .addCase(addToCart.fulfilled, (state, action) => {
         state.items = action.payload;
         state.syncing = false;
+        state.addingBookId = null;
       })
       .addCase(addToCart.rejected, (state, action) => {
         state.syncing = false;
+        state.addingBookId = null;
         state.error = action.payload;
       })
 

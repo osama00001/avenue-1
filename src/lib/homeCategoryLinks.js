@@ -37,3 +37,15 @@ export function resolveHomeBannerHref(slot, banner = {}) {
 
   return BESTSELLERS_BANNER_URL;
 }
+
+/** Prefer href saved in site content; fall back to legacy slot rules. */
+export function resolveStoredHomeHref(href, slot, banner = {}) {
+  const saved = String(href || "").trim();
+  if (saved && saved !== "#" && saved !== "/#") {
+    return saved;
+  }
+  if (slot) {
+    return resolveHomeBannerHref(slot, banner);
+  }
+  return saved || "/";
+}

@@ -9,7 +9,7 @@ import {
   updateCartQuantity,
   removeFromCart,
 } from "@/store/cartSlice";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useLayoutEffect, useCallback } from "react";
 import reverseName from "@/lib/reverseName";
 import BookFormatSection from "@/components/BookFormatSection";
 import { useRouter } from "next/navigation";
@@ -84,11 +84,88 @@ function CartQuantitySelector({ quantity, onUpdate }) {
   );
 }
 
+const DESKTOP_CART_SCROLL = "(min-width: 1024px)";
+const CART_VISIBLE_ITEMS = 8;
+const CART_PEEK_RATIO = 0.5;
+
 export default function CartPage() {
   const dispatch = useDispatch();
   const { items = [] } = useSelector((state) => state.cart);
   const router = useRouter();
   const [imgError, setImgError] = useState(new Array(items.length).fill(false));
+  const listRef = useRef(null);
+  const nextBtnRef = useRef(null);
+  const [listMaxHeight, setListMaxHeight] = useState(undefined);
+  const [showScrollHint, setShowScrollHint] = useState(false);
+  const [scrolledToBottom, setScrolledToBottom] = useState(false);
+
+  const updateListHeight = useCallback(() => {
+    const container = listRef.current;
+    const isDesktop = window.matchMedia(DESKTOP_CART_SCROLL).matches;
+
+    if (!container || items.length <= CART_VISIBLE_ITEMS || !isDesktop) {
+      setListMaxHeight(undefined);
+      setShowScrollHint(false);
+      setScrolledToBottom(false);
+      return;
+    }
+
+    const itemEls = Array.from(container.children);
+    if (itemEls.length <= CART_VISIBLE_ITEMS) {
+      setListMaxHeight(undefined);
+      setShowScrollHint(false);
+      return;
+    }
+
+    let visibleHeight = 0;
+    for (let i = 0; i < CART_VISIBLE_ITEMS; i++) {
+      visibleHeight += itemEls[i].getBoundingClientRect().height;
+    }
+    const peekEl = itemEls[CART_VISIBLE_ITEMS];
+    const peek = peekEl.getBoundingClientRect().height * CART_PEEK_RATIO;
+    const idealHeight = visibleHeight + peek;
+
+    setListMaxHeight(idealHeight);
+    setShowScrollHint(true);
+    setScrolledToBottom(false);
+  }, [items]);
+
+  useLayoutEffect(() => {
+    updateListHeight();
+    const frame = requestAnimationFrame(() => {
+      requestAnimationFrame(updateListHeight);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [updateListHeight]);
+
+  useEffect(() => {
+    window.addEventListener("resize", updateListHeight);
+    return () => window.removeEventListener("resize", updateListHeight);
+  }, [updateListHeight]);
+
+  useEffect(() => {
+    const container = listRef.current;
+    if (!container || items.length <= CART_VISIBLE_ITEMS) return;
+
+    const mq = window.matchMedia(DESKTOP_CART_SCROLL);
+    const onBreakpointChange = () => updateListHeight();
+    mq.addEventListener("change", onBreakpointChange);
+
+    const observer = new ResizeObserver(() => updateListHeight());
+    observer.observe(container);
+    if (nextBtnRef.current) observer.observe(nextBtnRef.current);
+
+    return () => {
+      mq.removeEventListener("change", onBreakpointChange);
+      observer.disconnect();
+    };
+  }, [updateListHeight, items.length]);
+
+  const handleListScroll = (e) => {
+    const el = e.currentTarget;
+    setScrolledToBottom(el.scrollHeight - el.scrollTop <= el.clientHeight + 8);
+  };
+
   useEffect(() => {
     dispatch(fetchCart());
     dispatch(fetchUserDetails());
@@ -129,15 +206,12 @@ export default function CartPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-black">
-      <div className="max-w-5xl mx-auto px-4 py-6">
+    <div className="min-h-screen bg-white text-black overflow-x-hidden">
+      <div className="max-w-5xl mx-auto px-4 py-6 w-full">
         {/* TOP CHROME */}
         <div className="flex items-center justify-between text-sm mb-5">
           <Link href="/" className="text-[#000000] hover:underline">
             &lt; Back to shopping
-          </Link>
-          <Link href="/" className="text-[#000000] hover:underline">
-            Help
           </Link>
         </div>
 
@@ -149,7 +223,7 @@ export default function CartPage() {
             <h2 className="text-2xl font-bold mb-4">Your basket is empty</h2>
             <Link
               href="/"
-              className="bg-[#1a1a1a] text-white px-6 py-3 inline-block hover:bg-[#e86406]"
+              className="bg-black text-white px-6 py-3 inline-block hover:bg-[#FF6A00] transition"
             >
               Continue Shopping
             </Link>
@@ -159,7 +233,20 @@ export default function CartPage() {
             {/* ITEMS */}
             <div className="flex-1">
               <div className="border border-gray-200">
-                {items.map((item) => {
+                <div className="relative">
+                  <div
+                    ref={listRef}
+                    onScroll={handleListScroll}
+                    className={
+                      items.length > CART_VISIBLE_ITEMS && listMaxHeight
+                        ? "lg:overflow-y-auto lg:cart-items-scroll"
+                        : ""
+                    }
+                    style={
+                      listMaxHeight ? { maxHeight: `${listMaxHeight}px` } : undefined
+                    }
+                  >
+                    {items.map((item) => {
                   const book = item.book;
                   if (!book) return null;
 
@@ -175,51 +262,70 @@ export default function CartPage() {
                   return (
                     <div
                       key={book._id}
-                      className="flex gap-4 p-5 border-b border-gray-200"
+                      className="border-b border-gray-200 p-4 lg:p-5 last:border-b-0"
                     >
-                      {/* IMAGE */}
-                      <div className="relative w-16 h-24 flex-shrink-0 bg-gray-50 flex items-center justify-center">
-                        {book.coverImage || book.recordReference && !imgError[items.indexOf(item)] ? (
-                          <Image
-                            src={
-                              book.coverImage ||
-                              `/covers/${book.recordReference.split("_")[0]}.jpg`
-                            }
-                            alt={title}
-                            fill
-                            className="object-contain"
-                            sizes="64px"
-                            unoptimized={true}
-                            onError={() => setImgError((prev) => {
-                              const newErrors = [...prev];
-                              newErrors[items.indexOf(item)] = true;
-                              return newErrors;
-                            })}
-                          />
-                        ) : (
-                          <span className="text-gray-400 text-[8px] text-center px-1">
-                            {title}
-                          </span>
-                        )}
-                      </div>
+                      {/* Mobile + tablet: stacked card */}
+                      <div className="lg:hidden space-y-3">
+                        <div className="flex items-start gap-3">
+                          <div className="relative w-20 h-28 shrink-0 bg-gray-50 flex items-center justify-center">
+                            {book.coverImage || (book.recordReference && !imgError[items.indexOf(item)]) ? (
+                              <Image
+                                src={
+                                  book.coverImage ||
+                                  `/covers/${book.recordReference.split("_")[0]}.jpg`
+                                }
+                                alt={title}
+                                fill
+                                className="object-contain"
+                                sizes="80px"
+                                unoptimized={true}
+                                onError={() => setImgError((prev) => {
+                                  const newErrors = [...prev];
+                                  newErrors[items.indexOf(item)] = true;
+                                  return newErrors;
+                                })}
+                              />
+                            ) : (
+                              <span className="text-gray-400 text-[8px] text-center px-1">
+                                {title}
+                              </span>
+                            )}
+                          </div>
 
-                      {/* INFO */}
-                      <div className="flex-1 min-w-0">
-                        <Link href={`/${book._id}`}>
-                          <h3 className="font-semibold leading-snug hover:underline">
-                            {title}
-                          </h3>
-                        </Link>
-                        <div className="text-sm">{author}</div>
+                          <div className="flex-1 min-w-0">
+                            <Link href={`/${book._id}`}>
+                              <h3 className="font-semibold leading-snug hover:underline">
+                                {title}
+                              </h3>
+                            </Link>
+                            <div className="text-sm mt-0.5">{author}</div>
+                          </div>
 
-                        <div className="mt-3">
-                          <BookFormatSection
-                            book={book}
-                            price={formatPrice}
-                            originalPrice={formatOriginalPrice}
-                            discountPercent={formatDiscountPercent}
-                          />
+                          <div className="shrink-0 flex flex-col items-end gap-2">
+                            <CartQuantitySelector
+                              quantity={item.quantity}
+                              onUpdate={(qty) =>
+                                dispatch(
+                                  updateCartQuantity({
+                                    bookId: book._id,
+                                    quantity: qty,
+                                  })
+                                )
+                              }
+                            />
+                            <span className="font-semibold whitespace-nowrap text-sm">
+                              £{(price * item.quantity).toFixed(2)}
+                            </span>
+                          </div>
                         </div>
+
+                        <BookFormatSection
+                          compact
+                          book={book}
+                          price={formatPrice}
+                          originalPrice={formatOriginalPrice}
+                          discountPercent={formatDiscountPercent}
+                        />
 
                         <button
                           onClick={async () => {
@@ -230,39 +336,107 @@ export default function CartPage() {
                               toast.success("Item removed from basket");
                             }
                           }}
-                          className="text-[#1a1a1a] text-sm underline mt-2 cursor-pointer"
+                          className="text-[#1a1a1a] text-sm underline cursor-pointer"
                         >
                           Remove
                         </button>
                       </div>
 
-                      {/* QTY + LINE PRICE */}
-                      <div className="flex flex-col items-end gap-3">
-                        <CartQuantitySelector
-                          quantity={item.quantity}
-                          onUpdate={(qty) =>
-                            dispatch(
-                              updateCartQuantity({
-                                bookId: book._id,
-                                quantity: qty,
-                              })
-                            )
-                          }
-                        />
+                      {/* Desktop: horizontal row */}
+                      <div className="hidden lg:flex gap-4">
+                        <div className="relative w-16 h-24 shrink-0 bg-gray-50 flex items-center justify-center">
+                          {book.coverImage || (book.recordReference && !imgError[items.indexOf(item)]) ? (
+                            <Image
+                              src={
+                                book.coverImage ||
+                                `/covers/${book.recordReference.split("_")[0]}.jpg`
+                              }
+                              alt={title}
+                              fill
+                              className="object-contain"
+                              sizes="64px"
+                              unoptimized={true}
+                              onError={() => setImgError((prev) => {
+                                const newErrors = [...prev];
+                                newErrors[items.indexOf(item)] = true;
+                                return newErrors;
+                              })}
+                            />
+                          ) : (
+                            <span className="text-gray-400 text-[8px] text-center px-1">
+                              {title}
+                            </span>
+                          )}
+                        </div>
 
-                        <span className="font-semibold whitespace-nowrap">
-                          £{(price * item.quantity).toFixed(2)}
-                        </span>
+                        <div className="flex-1 min-w-0">
+                          <Link href={`/${book._id}`}>
+                            <h3 className="font-semibold leading-snug hover:underline">
+                              {title}
+                            </h3>
+                          </Link>
+                          <div className="text-sm">{author}</div>
+
+                          <div className="mt-3">
+                            <BookFormatSection
+                              compact
+                              book={book}
+                              price={formatPrice}
+                              originalPrice={formatOriginalPrice}
+                              discountPercent={formatDiscountPercent}
+                            />
+                          </div>
+
+                          <button
+                            onClick={async () => {
+                              const response = await dispatch(
+                                removeFromCart({ bookId: book._id })
+                              );
+                              if (response?.type === "cart/remove/fulfilled") {
+                                toast.success("Item removed from basket");
+                              }
+                            }}
+                            className="text-[#1a1a1a] text-sm underline mt-4 cursor-pointer"
+                          >
+                            Remove
+                          </button>
+                        </div>
+
+                        <div className="flex flex-col items-end gap-3 shrink-0">
+                          <CartQuantitySelector
+                            quantity={item.quantity}
+                            onUpdate={(qty) =>
+                              dispatch(
+                                updateCartQuantity({
+                                  bookId: book._id,
+                                  quantity: qty,
+                                })
+                              )
+                            }
+                          />
+                          <span className="font-semibold whitespace-nowrap">
+                            £{(price * item.quantity).toFixed(2)}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   );
                 })}
+                  </div>
+
+                  {showScrollHint && !scrolledToBottom && (
+                    <div
+                      className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white via-white/80 to-transparent hidden lg:block"
+                      aria-hidden="true"
+                    />
+                  )}
+                </div>
 
                 {/* NEXT BUTTON */}
-                <div className="flex justify-end p-5 bg-gray-50">
+                <div ref={nextBtnRef} className="flex justify-end p-5 bg-gray-50">
                   <button
                     onClick={handleNext}
-                    className="bg-[#1a1a1a] text-white px-8 py-3 font-semibold cursor-pointer hover:bg-[#262626] transition"
+                    className="w-full sm:w-auto bg-black text-white px-8 py-3 font-semibold cursor-pointer hover:bg-[#FF6A00] transition"
                   >
                     NEXT: DELIVERY
                   </button>

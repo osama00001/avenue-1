@@ -134,6 +134,7 @@ export function catalogUrlFromPathOrLabel(href = "", label = "") {
   const labelNorm = String(label || "").toLowerCase();
 
   if (labelNorm.includes("bestseller")) return categoryBrowseUrl("bestsellers");
+  if (labelNorm.includes("sale")) return categoryBrowseUrl("bestsellers");
   if (labelNorm.includes("new book")) return categoryBrowseUrl("popular");
   if (labelNorm.includes("highlight")) {
     return categoryBrowseUrl("recently_reviewed");

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { fetchCMSPages } from "@/store/cmsSlice";
@@ -9,7 +9,7 @@ import {
   COOKIE_PREFERENCES_SELECTOR,
   isManageCookiesLink,
 } from "@/lib/legalLinks";
-import { DEFAULT_SOCIAL_LINKS } from "@/lib/defaultSocialLinks";
+import { resolveFooterHref } from "@/lib/footerHref";
 import {
   FaXTwitter,
   FaFacebook,
@@ -43,19 +43,10 @@ const pickFirstString = (obj, exclude = []) => {
   return null;
 };
 
-const resolveFooterHref = (href) => {
-  if (!href) return "#";
-  if (href.startsWith("http://") || href.startsWith("https://")) {
-    return href;
-  }
-  if (href.startsWith("/cms/")) return href;
-  const normalized = href.startsWith("/") ? href : `/${href}`;
-  return `/cms${normalized}`;
-};
-
 export default function Footer() {
   const dispatch = useDispatch();
   const [footerConfig, setFooterConfig] = useState(null);
+  const [socialLinks, setSocialLinks] = useState(null);
 
   const { list: pages, loading } = useSelector((s) => s.cms);
 
@@ -69,7 +60,7 @@ export default function Footer() {
 
     const loadFooter = async () => {
       try {
-        const res = await fetch("/api/strapi/footer");
+        const res = await fetch("/api/content/footer");
         if (!res.ok) return;
         const payload = await res.json();
         const entry = payload?.data;
@@ -83,7 +74,30 @@ export default function Footer() {
     };
 
     loadFooter();
-  }, [dispatch]);
+
+    const loadSocialLinks = async () => {
+      try {
+        const res = await fetch("/api/content/social");
+        if (!res.ok) {
+          setSocialLinks([]);
+          return;
+        }
+        const payload = await res.json();
+        const entries = payload?.data || [];
+        setSocialLinks(
+          entries.map((entry, index) => ({
+            id: entry.id ?? `social-${index}`,
+            ...(entry.attributes || entry),
+          }))
+        );
+      } catch (err) {
+        console.error("[footer] failed to load social links", err);
+        setSocialLinks([]);
+      }
+    };
+
+    loadSocialLinks();
+  }, [dispatch, pages.length]);
 
   /**
    * ================= CMS GROUP
@@ -106,11 +120,15 @@ export default function Footer() {
   
 
   /**
-   * ================= SOCIALS (icons only — links added later)
+   * ================= SOCIALS — from avenue-admin / MongoDB (enabled = On)
    */
-  const displaySocials = [...DEFAULT_SOCIAL_LINKS]
-    .filter((s) => s.enabled)
-    .sort((a, b) => a.order - b.order);
+  const displaySocials = useMemo(() => {
+    if (!Array.isArray(socialLinks)) return [];
+    return socialLinks
+      .filter((s) => s.enabled !== false && s.icon !== "faLinkedin")
+      .filter((s) => String(s.label || "").trim())
+      .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+  }, [socialLinks]);
 
   return (
     <footer className="bg-[#e8e8e8] text-gray-900">
@@ -142,8 +160,11 @@ export default function Footer() {
                   ? items.map((link, index) => {
                       const linkLabel =
                         link.label || pickFirstString(link, ["id", "href"]);
-                      const rawHref = link.href || link.url || "#";
-                      const linkHref = resolveFooterHref(rawHref);
+                      const rawHref = link.href || link.url || "";
+                      const linkHref = resolveFooterHref(rawHref, {
+                        label: linkLabel,
+                        cmsPages: pages,
+                      });
                       const linkKey =
                         link.id ??
                         linkLabel ??
@@ -222,18 +243,40 @@ export default function Footer() {
           </h4>
 
           <ul className="space-y-3 text-sm">
+            {socialLinks === null && (
+              <li className="text-gray-600">Loading...</li>
+            )}
+            {socialLinks !== null && displaySocials.length === 0 && (
+              <li className="text-gray-600">No social links</li>
+            )}
             {displaySocials.map((social, i) => {
               const Icon = ICON_MAP[social.icon];
+              const row = (
+                <>
+                  {Icon ? (
+                    <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  ) : (
+                    <span className="h-4 w-4 shrink-0 rounded-full bg-gray-400" />
+                  )}
+                  <span>{social.label}</span>
+                </>
+              );
               return (
                 <li key={social.id ?? social.label ?? `social-${i}`}>
-                  <span className="flex items-center gap-3 text-gray-900">
-                    {Icon ? (
-                      <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                    ) : (
-                      <span className="h-4 w-4 shrink-0 rounded-full bg-gray-400" />
-                    )}
-                    <span>{social.label}</span>
-                  </span>
+                  {social.url ? (
+                    <a
+                      href={social.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-3 text-gray-900"
+                    >
+                      {row}
+                    </a>
+                  ) : (
+                    <span className="flex items-center gap-3 text-gray-900">
+                      {row}
+                    </span>
+                  )}
                 </li>
               );
             })}

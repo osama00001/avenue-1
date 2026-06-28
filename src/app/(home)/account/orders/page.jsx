@@ -1,38 +1,33 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
 import { fetchUserOrders } from "@/store/orderSlice";
 import { fetchUserDetails } from "@/store/userSlice";
 import OrderCard from "@/components/cards/OrderCard";
+import TrackOrderDialog from "@/components/orders/TrackOrderDialog";
 import AdminHeader from "@/components/admin/AdminHeader";
 
 const Page = () => {
   const dispatch = useDispatch();
+  const [trackingOrder, setTrackingOrder] = useState(null);
 
-  const { user } = useSelector((s) => s.user);
+  const userId = useSelector((s) => s.user.user?._id);
   const { loading, userOrders } = useSelector((s) => s.orders);
 
-  // ================= FETCH USER =================
   useEffect(() => {
     dispatch(fetchUserDetails());
   }, [dispatch]);
 
-  // ================= FETCH ORDERS AFTER USER READY =================
   useEffect(() => {
-    if (user?._id) {
-      dispatch(fetchUserOrders(user._id));
-    }
-  }, [user, dispatch]);
+    if (userId) dispatch(fetchUserOrders(userId));
+  }, [userId, dispatch]);
 
-  // ================= LOADING =================
   if (loading)
     return (
       <div className="p-12 text-center text-gray-500">Loading orders...</div>
     );
 
-  // ================= EMPTY STATE =================
   if (!loading && userOrders?.length === 0)
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -46,20 +41,28 @@ const Page = () => {
       </div>
     );
 
-//   console.log("-=-=- userOrders -=-=-===-", userOrders);
-
-  // ================= PAGE =================
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-5xl mx-auto px-4 py-10">
         <AdminHeader title="Your Orders" />
-
         <div className="space-y-4">
           {userOrders.map((order) => (
-            <OrderCard key={order._id} order={order} />
+            <OrderCard
+              key={order._id}
+              order={order}
+              onTrack={setTrackingOrder}
+            />
           ))}
         </div>
       </div>
+
+      {trackingOrder && (
+        <TrackOrderDialog
+          order={trackingOrder}
+          open
+          onOpenChange={(open) => !open && setTrackingOrder(null)}
+        />
+      )}
     </div>
   );
 };

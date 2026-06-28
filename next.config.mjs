@@ -6,28 +6,24 @@ const nextConfig = {
   ],
   async redirects() {
     return [
-      { source: "/terms", destination: "/cms/terms-conditions", permanent: true },
-      { source: "/privacy", destination: "/cms/privacy-notice", permanent: true },
-      { source: "/cms/terms", destination: "/cms/terms-conditions", permanent: true },
-      { source: "/cms/privacy", destination: "/cms/privacy-notice", permanent: true },
+      { source: "/terms", destination: "/cms/terms", permanent: true },
+      { source: "/privacy", destination: "/cms/privacy", permanent: true },
+      { source: "/cms/terms-conditions", destination: "/cms/terms", permanent: true },
+      { source: "/cms/privacy-notice", destination: "/cms/privacy", permanent: true },
+      { source: "/cms/cookie-policy", destination: "/cms/cookies", permanent: true },
     ];
   },
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "**.media.strapiapp.com",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "**.strapiapp.com",
-        pathname: "/**",
-      },
-      {
         protocol: "http",
         hostname: "localhost",
-        port: "1337",
+        port: "3000",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "www.avenuebookstore.com",
         pathname: "/**",
       },
     ],

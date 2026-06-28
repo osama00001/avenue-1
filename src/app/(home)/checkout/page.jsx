@@ -241,9 +241,6 @@ const Page = () => {
           <Link href="/cart" className="text-[#000000] hover:underline">
             &lt; Back to shopping
           </Link>
-          <Link href="/" className="text-[#000000] hover:underline">
-            Help
-          </Link>
         </div>
 
         {/* STEP BAR */}

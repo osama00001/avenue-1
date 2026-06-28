@@ -14,7 +14,7 @@ export default function NewCustomerCard() {
 
       <Link
         href="/auth/user/register"
-        className="inline-block bg-[#FF6A00] hover:bg-[#da5f07] text-white font-medium px-6 py-3 rounded-md transition"
+        className="inline-block bg-black hover:bg-[#FF6A00] text-white font-medium px-6 py-3 rounded-md transition"
       >
         Create an Account
       </Link>

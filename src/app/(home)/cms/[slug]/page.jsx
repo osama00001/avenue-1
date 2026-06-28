@@ -4,11 +4,9 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import rehypeRaw from "rehype-raw";
-import CmsPage from "@/models/CmsPage";
 import { TEMPLATE_REGISTRY } from "@/components/templates/registry";
-import { connectDB } from "@/lib/db";
 import CmsNotFound from "@/components/CmsNotFound";
-import { getStrapiCollection, getStrapiPageBySlug } from "@/lib/strapi";
+import { getSitePageBySlug, listSitePages } from "@/lib/siteContentStore";
 
 const cmsHeadingFont = Libre_Baskerville({
   subsets: ["latin"],
@@ -33,6 +31,11 @@ const renderCmsContent = (content) => {
     );
   }
 
+  const looksLikeHtml = /^\s*</.test(content) || /<(?:p|figure|img|h[1-6]|ul|ol|table)\b/i.test(content);
+  if (looksLikeHtml) {
+    return <div dangerouslySetInnerHTML={{ __html: content }} />;
+  }
+
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm, remarkBreaks]}
@@ -43,109 +46,98 @@ const renderCmsContent = (content) => {
   );
 };
 
+function normalizeBlockType(type = "") {
+  if (type === "richtext") return "richText";
+  return type;
+}
+
+function blockProps(block) {
+  const type = normalizeBlockType(block.type);
+  if (type === "richText") {
+    return { content: block.data?.html || block.data?.content || "" };
+  }
+  return block.data || {};
+}
+
+function renderBlocks(blocks = []) {
+  return blocks.map((block, index) => {
+    const type = normalizeBlockType(block.type);
+    const Comp = TEMPLATE_REGISTRY[type]?.component;
+
+    if (Comp) {
+      return <Comp key={block.id || index} {...blockProps(block)} />;
+    }
+
+    const html = block.data?.html || block.data?.content;
+    if (html) {
+      return (
+        <div
+          key={block.id || index}
+          className="prose max-w-none my-8"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      );
+    }
+
+    return null;
+  });
+}
+
 export default async function Page({ params }) {
   const { slug } = await params;
 
-  let strapiEntry = null;
-  let navPages = [];
-  const useStrapi = Boolean(process.env.STRAPI_URL);
-
-  try {
-    const strapiData = await getStrapiPageBySlug(
-      slug,
-      "fields[0]=title&fields[1]=slug&fields[2]=content"
-    );
-    strapiEntry = strapiData?.data?.[0] || null;
-  } catch (err) {
-    console.error("[cms] failed to load Strapi page", err);
-  }
-
-  try {
-    const navData = await getStrapiCollection(
-      "pages",
-      "fields[0]=title&fields[1]=slug&fields[2]=level&sort[0]=level:asc&sort[1]=title:asc"
-    );
-    navPages = (navData?.data || [])
-      .map((entry) => ({
-        id: entry.id,
-        ...(entry.attributes || entry),
-      }))
-      .filter((entry) => entry?.slug && entry?.title);
-  } catch (err) {
-    console.error("[cms] failed to load Strapi nav pages", err);
-  }
-
-  const strapiAttributes = strapiEntry?.attributes || strapiEntry;
-
-  if (strapiAttributes) {
-    const { title, content } = strapiAttributes;
-    return (
-      <div
-        className={`cms-page ${cmsHeadingFont.variable} ${cmsBodyFont.variable}`}
-      >
-        <div className="cms-shell">
-          <div className="cms-grid">
-            {navPages.length > 0 && (
-              <aside className="cms-sidebar">
-                <h2 className="cms-sidebar-title">Help menu</h2>
-                <ul className="cms-nav">
-                  {navPages.map((page) => {
-                    const isActive = page.slug === slug;
-                    const level = Number(page.level || 0);
-                    const itemClass =
-                      level === 1 ? "cms-nav-heading" : "cms-nav-item";
-                    return (
-                      <li key={page.id || page.slug}>
-                        <Link
-                          href={`/cms/${page.slug}`}
-                          className={`${itemClass} ${
-                            isActive ? "cms-nav-active" : ""
-                          }`}
-                        >
-                          <span>{page.title}</span>
-                          <span className="cms-nav-arrow">▶</span>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </aside>
-            )}
-            <div className="cms-article">
-              {title && <h1 className="cms-title">{title}</h1>}
-              <div className="cms-content">{renderCmsContent(content)}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (useStrapi) {
-    return <CmsNotFound />;
-  }
-
-  await connectDB();
-
-  const page = await CmsPage.findOne({ slug }).lean();
+  const page = await getSitePageBySlug(slug);
+  const navPages = (await listSitePages()).filter((entry) => entry?.slug && entry?.title);
 
   if (!page) {
     return <CmsNotFound />;
   }
 
+  const { title, content, blocks = [] } = page;
+  const hasContent = Boolean(String(content || "").trim());
+  const hasBlocks = Array.isArray(blocks) && blocks.length > 0;
+
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      {/* Title */}
-      {page.title && <h1 className="text-4xl font-bold mb-10">{page.title}</h1>}
-
-      {/* Blocks */}
-      {page.blocks.map((block, i) => {
-        const Comp = TEMPLATE_REGISTRY[block.type]?.component;
-
-        if (!Comp) return null;
-
-        return <Comp key={i} {...block.data} />;
-      })}
+    <div
+      className={`cms-page ${cmsHeadingFont.variable} ${cmsBodyFont.variable}`}
+    >
+      <div className="cms-shell">
+        <div className="cms-grid">
+          {navPages.length > 0 && (
+            <aside className="cms-sidebar">
+              <h2 className="cms-sidebar-title">Help menu</h2>
+              <ul className="cms-nav">
+                {navPages.map((navPage) => {
+                  const isActive = navPage.slug === slug;
+                  const level = Number(navPage.level || 0);
+                  const itemClass =
+                    level === 1 ? "cms-nav-heading" : "cms-nav-item";
+                  return (
+                    <li key={navPage.id || navPage.slug}>
+                      <Link
+                        href={`/cms/${navPage.slug}`}
+                        className={`${itemClass} ${
+                          isActive ? "cms-nav-active" : ""
+                        }`}
+                      >
+                        <span>{navPage.title}</span>
+                        <span className="cms-nav-arrow">▶</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </aside>
+          )}
+          <div className="cms-article">
+            {title && <h1 className="cms-title">{title}</h1>}
+            <div className="cms-content">
+              {hasContent ? renderCmsContent(content) : null}
+              {!hasContent && hasBlocks ? renderBlocks(blocks) : null}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

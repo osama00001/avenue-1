@@ -4,7 +4,7 @@
  * One-shot script to seed the minimum content the storefront needs to look
  * alive after deployment:
  *   - 9 CMS pages grouped into the 3 footer columns (Shopping / Legal / About)
- *   - 5 social-media link placeholders (Katie can flip enabled=false later)
+ *   - 5 social-media link placeholders (enabled=false until configured in admin)
  *
  * Idempotent — re-running updates existing rows by slug instead of duplicating.
  *
@@ -24,36 +24,26 @@ const RESET = process.argv.includes('--reset');
 
 // ---------------------------------------------------------------------------
 // CMS PAGES — minimum legal & support set for a UK e-commerce site.
-// `level` matches the Footer's column groups (1=Shopping, 2=Legal, 3=About).
-// `blocks` use type 'richtext' which Next renders via the cms slug page;
-// content is intentionally placeholder so Katie can replace it without it
-// looking broken in the meantime.
-// ---------------------------------------------------------------------------
+// `content` is HTML rendered on /cms/[slug]. `level` matches footer columns (1/2/3).
 const CMS_PAGES = [
   // SHOPPING WITH US (level 1)
   {
     slug: 'delivery',
     title: 'Delivery & Shipping',
     level: 1,
-    blocks: [{ type: 'richtext', data: {
-      html: '<p>UK orders are dispatched within 24 hours of receipt (orders placed after 4pm Mon–Fri ship the next working day). Standard delivery: 2–5 working days. Free on orders over £25; £2.99 below.</p>'
-    }}],
+    content: '<p>UK orders are dispatched within 24 hours of receipt (orders placed after 4pm Mon–Fri ship the next working day). Standard delivery: 2–5 working days. Free on orders over £25; £2.99 below.</p>',
   },
   {
     slug: 'returns',
     title: 'Returns',
     level: 1,
-    blocks: [{ type: 'richtext', data: {
-      html: '<p>You may return any unread book in original condition within 30 days of delivery for a full refund. Email <a href="mailto:hello@avenuebookstore.com">hello@avenuebookstore.com</a> with your order number to start a return.</p>'
-    }}],
+    content: '<p>You may return any unread book in original condition within 30 days of delivery for a full refund. Email <a href="mailto:hello@avenuebookstore.com">hello@avenuebookstore.com</a> with your order number to start a return.</p>',
   },
   {
     slug: 'help',
     title: 'Help & FAQ',
     level: 1,
-    blocks: [{ type: 'richtext', data: {
-      html: '<p>Find answers to common questions about ordering, delivery, ebooks, and accounts. Need more help? Email <a href="mailto:hello@avenuebookstore.com">hello@avenuebookstore.com</a>.</p>'
-    }}],
+    content: '<p>Find answers to common questions about ordering, delivery, ebooks, and accounts. Need more help? Email <a href="mailto:hello@avenuebookstore.com">hello@avenuebookstore.com</a>.</p>',
   },
 
   // LEGAL (level 2)
@@ -61,25 +51,19 @@ const CMS_PAGES = [
     slug: 'terms',
     title: 'Terms & Conditions',
     level: 2,
-    blocks: [{ type: 'richtext', data: {
-      html: '<p>These terms govern your use of avenuebookstore.com. By placing an order you agree to be bound by them. Avenue Bookstore reserves the right to amend these terms at any time. Last updated 2026.</p><p><em>Placeholder — replace with finalised legal text from your solicitor before launch.</em></p>'
-    }}],
+    content: '<p>These terms govern your use of avenuebookstore.com. By placing an order you agree to be bound by them. Avenue Bookstore reserves the right to amend these terms at any time. Last updated 2026.</p><p><em>Placeholder — replace with finalised legal text from your solicitor before launch.</em></p>',
   },
   {
     slug: 'privacy',
     title: 'Privacy Policy',
     level: 2,
-    blocks: [{ type: 'richtext', data: {
-      html: '<p>We collect only the data needed to fulfil your order (name, address, email, payment details). We never sell your data. UK GDPR rights apply — contact <a href="mailto:privacy@avenuebookstore.com">privacy@avenuebookstore.com</a> for access, correction, or deletion requests.</p><p><em>Placeholder — replace with your finalised privacy policy.</em></p>'
-    }}],
+    content: '<p>We collect only the data needed to fulfil your order (name, address, email, payment details). We never sell your data. UK GDPR rights apply — contact <a href="mailto:privacy@avenuebookstore.com">privacy@avenuebookstore.com</a> for access, correction, or deletion requests.</p><p><em>Placeholder — replace with your finalised privacy policy.</em></p>',
   },
   {
     slug: 'cookies',
     title: 'Cookie Policy',
     level: 2,
-    blocks: [{ type: 'richtext', data: {
-      html: '<p>We use essential cookies for cart and login, and analytics cookies to improve the site. You can manage cookie preferences in your browser settings.</p>'
-    }}],
+    content: '<p>We use essential cookies for cart and login, and analytics cookies to improve the site. You can manage cookie preferences in your browser settings.</p>',
   },
 
   // ABOUT AVENUE (level 3)
@@ -87,25 +71,19 @@ const CMS_PAGES = [
     slug: 'about',
     title: 'About Avenue',
     level: 3,
-    blocks: [{ type: 'richtext', data: {
-      html: '<p>Avenue Bookstore is an independent UK bookseller offering a curated catalogue of physical and digital titles, sourced through our partnership with Gardners Books — the UK’s largest book wholesaler.</p>'
-    }}],
+    content: '<p>Avenue Bookstore is an independent UK bookseller offering a curated catalogue of physical and digital titles, sourced through our partnership with Gardners Books — the UK’s largest book wholesaler.</p>',
   },
   {
     slug: 'contact',
     title: 'Contact Us',
     level: 3,
-    blocks: [{ type: 'richtext', data: {
-      html: '<p>Email: <a href="mailto:hello@avenuebookstore.com">hello@avenuebookstore.com</a><br>We respond to all enquiries within one working day.</p>'
-    }}],
+    content: '<p>Email: <a href="mailto:hello@avenuebookstore.com">hello@avenuebookstore.com</a><br>We respond to all enquiries within one working day.</p>',
   },
   {
     slug: 'press',
     title: 'Press',
     level: 3,
-    blocks: [{ type: 'richtext', data: {
-      html: '<p>Press enquiries: <a href="mailto:press@avenuebookstore.com">press@avenuebookstore.com</a></p>'
-    }}],
+    content: '<p>Press enquiries: <a href="mailto:press@avenuebookstore.com">press@avenuebookstore.com</a></p>',
   },
 ];
 

@@ -89,7 +89,9 @@ export default function HighlightsPage() {
                         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
                       />
                     </div>
-                    <h3 className="text-sm font-semibold mt-2 leading-tight line-clamp-2">{titleOf(book)}</h3>
+                    <h3 className="text-sm font-semibold text-black mt-2 leading-tight line-clamp-2">
+                      {titleOf(book)}
+                    </h3>
                     {priceOf(book) && (
                       <p className="text-sm font-medium text-[#FF6A00]">{priceOf(book)}</p>
                     )}

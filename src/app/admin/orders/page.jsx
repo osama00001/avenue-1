@@ -11,25 +11,21 @@ import AdminTable from "@/components/admin/AdminTable";
 // STATUS BADGE
 // ======================================================
 
-const StatusBadge = ({ status }) => {
-  const styles = {
-    placed: "bg-yellow-100 text-yellow-700",
-    processing: "bg-blue-100 text-blue-700",
-    shipped: "bg-purple-100 text-purple-700",
-    delivered: "bg-green-100 text-green-700",
-    cancelled: "bg-red-100 text-red-700",
-  };
+import {
+  ORDER_STATUS_COLORS,
+  ORDER_TRACKING_STEPS,
+  formatOrderStatus,
+} from "@/lib/orderStatus";
 
-  return (
-    <span
-      className={`px-2 py-1 text-xs rounded-full font-medium ${
-        styles[status.toLowerCase()] || "bg-gray-100 text-gray-700"
-      }`}
-    >
-      {status.toUpperCase()}
-    </span>
-  );
-};
+const StatusBadge = ({ status }) => (
+  <span
+    className={`px-2 py-1 text-xs rounded-full font-medium ${
+      ORDER_STATUS_COLORS[status?.toLowerCase()] || "bg-gray-100 text-gray-700"
+    }`}
+  >
+    {formatOrderStatus(status)}
+  </span>
+);
 
 // ======================================================
 // COLUMNS
@@ -62,7 +58,7 @@ const getColumns = () => [
   {
     header: "Status",
     cell: ({ row }) => (
-      <StatusBadge status={row.original.status.toUpperCase()} />
+      <StatusBadge status={row.original.status} />
     ),
   },
   {
@@ -138,11 +134,10 @@ const AdminOrders = () => {
           className="border cursor-pointer px-3 py-2 rounded"
         >
           <option value="">All Status</option>
-          <option value="placed">Placed</option>
-          <option value="processing">Processing</option>
-          <option value="shipped">Shipped</option>
+          {ORDER_TRACKING_STEPS.map((step) => (
+            <option key={step.id} value={step.id}>{step.title}</option>
+          ))}
           <option value="delivered">Delivered</option>
-          <option value="cancelled">Cancelled</option>
         </select>
 
         <button

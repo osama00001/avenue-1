@@ -4,7 +4,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import LogoutButton from "../LogoutButton";
 
-import { LucideUser, LucidePackage, LucideLogOut } from "lucide-react";
+import { LucidePackage, LucideHeart } from "lucide-react";
 
 const HeaderUser = ({ hoveredDropdown }) => {
   const dispatch = useDispatch();
@@ -65,8 +65,16 @@ const HeaderUser = ({ hoveredDropdown }) => {
 
         {/* Orders */}
         <Link
+          href="/wishlist"
+          className="flex items-center gap-3 px-4 py-3 text-gray-800 hover:bg-[#FF6A00]/10 hover:text-[#FF6A00] transition"
+        >
+          <LucideHeart size={18} />
+          My Wishlist
+        </Link>
+
+        <Link
           href="/account/orders"
-          className="flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition"
+          className="flex items-center gap-3 px-4 py-3 text-gray-800 hover:bg-[#FF6A00]/10 hover:text-[#FF6A00] transition"
         >
           <LucidePackage size={18} />
           My Orders

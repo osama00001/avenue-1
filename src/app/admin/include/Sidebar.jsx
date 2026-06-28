@@ -7,21 +7,22 @@ import { Menu, Home, FolderTree, User } from "lucide-react";
 import { MdGroups2 } from "react-icons/md";
 import { IoLibraryOutline } from "react-icons/io5";
 import { BiGroup } from "react-icons/bi";
-import { TbCategory } from "react-icons/tb";
-import { TbShoppingCartCopy } from "react-icons/tb";
-import { IoSettingsOutline } from "react-icons/io5";
-import { MdLibraryBooks } from "react-icons/md";
-import { TbLogs } from "react-icons/tb";
+import { TbCategory, TbLogs, TbShoppingCartCopy } from "react-icons/tb";
+import { LayoutTemplate } from "lucide-react";
 // You can replace these with FontAwesome if preferred
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
-  const isActive = (path) =>
-    pathname === path
+  const isActive = (path) => {
+    const active =
+      pathname === path ||
+      (path !== "/admin" && pathname.startsWith(`${path}/`));
+    return active
       ? "bg-[#FF6A00] text-white shadow-sm"
       : "text-gray-700 hover:bg-gray-200";
+  };
 
   const menuItems = [
     { name: "Dashboard", path: "/admin", icon: <Home size={20} /> },
@@ -36,7 +37,7 @@ export default function Sidebar() {
       icon: <IoLibraryOutline size={20} />,
     },
     { name: "Users", path: "/admin/users", icon: <BiGroup size={20} /> },
-    { name: "CMS", path: "/admin/cms", icon: <MdLibraryBooks size={20} /> },
+    { name: "Site Content", path: "/admin/site-content", icon: <LayoutTemplate size={20} /> },
     { name: "Blogs", path: "/admin/blog", icon: <TbLogs size={20} /> },
     {
       name: "Orders",
@@ -44,7 +45,6 @@ export default function Sidebar() {
       icon: <TbShoppingCartCopy size={20} />,
     },
     { name: "Profile", path: "/admin/profile", icon: <User size={20} /> },
-    { name: "Settings", path: "/admin/setting", icon: <IoSettingsOutline size={20} /> },
   ];
 
   return (
