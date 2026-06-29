@@ -15,7 +15,7 @@ export default function SaleHighlights({ highlights, saletitle }) {
         {highlights.map(({ id, label, iconSrc, href }) => {
           const inner = (
             <>
-              <div className="flex h-24 w-24 items-center justify-center">
+              <div className="flex  items-center justify-center">
                 {shouldUseNativeImage(iconSrc) ? (
                   <img
                     src={iconSrc}
