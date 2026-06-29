@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { shouldUseNativeImage } from "@/lib/mediaUrl";
 
 export default function BannerSlider({
   slides,
@@ -41,18 +42,14 @@ export default function BannerSlider({
         className="flex transition-transform duration-700 ease-in-out"
         style={{ transform: `translateX(-${current * 100}%)` }}
       >
-        {slides.map(({ id, imageUrl, alt, href }) => {
-          const isLocalhost =
-            imageUrl?.includes("localhost:1337") ||
-            imageUrl?.includes("127.0.0.1:1337");
-          return (
+        {slides.map(({ id, imageUrl, alt, href }) => (
           <Link
             key={id}
             href={href}
             className="min-w-full w-full shrink-0 block relative"
             aria-label={alt}
           >
-            {isLocalhost ? (
+            {shouldUseNativeImage(imageUrl) ? (
               <img
                 src={imageUrl}
                 alt={alt}
@@ -71,8 +68,7 @@ export default function BannerSlider({
               />
             )}
           </Link>
-        );
-        })}
+        ))}
       </div>
 
       {/* Navigation dots */}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { shouldUseNativeImage } from "@/lib/mediaUrl";
 
 export default function SaleHighlights({ highlights, saletitle }) {
   if (!highlights?.length) return null;
@@ -15,13 +16,22 @@ export default function SaleHighlights({ highlights, saletitle }) {
           const inner = (
             <>
               <div className="flex items-center justify-center">
-                <Image
-                  src={iconSrc}
-                  alt={label}
-                  width={1000}
-                  height={1000}
-                  className="object-cover h-full w-full"
-                />
+                {shouldUseNativeImage(iconSrc) ? (
+                  <img
+                    src={iconSrc}
+                    alt={label}
+                    className="object-cover h-full w-full"
+                    loading="lazy"
+                  />
+                ) : (
+                  <Image
+                    src={iconSrc}
+                    alt={label}
+                    width={1000}
+                    height={1000}
+                    className="object-cover h-full w-full"
+                  />
+                )}
               </div>
               <span className="text-sm font-medium">{label}</span>
             </>

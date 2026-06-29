@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import BannerSlider from "@/components/BannerSlider";
 import SaleHighlights from "@/components/SaleHighlights";
 import HomeMustReadSection from "@/components/HomeMustReadSection";
@@ -14,6 +13,7 @@ import {
 } from "@/lib/homeCategoryLinks";
 import Link from "next/link";
 import BlogSection from "@/components/BlogSection";
+import CmsImage from "@/components/CmsImage";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBooksForHome } from "@/store/bookSlice";
 import reverseName from "@/lib/reverseName";
@@ -864,24 +864,13 @@ export default function HomePage() {
           href={resolveStoredHomeHref(promoBanner?.href, "promo", promoBanner || {})}
           className="min-w-full block relative"
         >
-          {promoBanner?.image &&
-            (promoBanner.image.includes("localhost:1337") ||
-              promoBanner.image.includes("127.0.0.1:1337")) ? (
-            <img
-              src={promoBanner.image}
-              alt={promoBanner.title || "Promo"}
-              className="object-cover w-full"
-              loading="lazy"
-            />
-          ) : (
-            <Image
-              src={promoBanner?.image || "/img/sprinkbanner/joewiocl.webp"}
-              alt={promoBanner?.title || "Promo"}
-              width={1400}
-              height={200}
-              className="object-cover w-full"
-            />
-          )}
+          <CmsImage
+            src={promoBanner?.image || "/img/sprinkbanner/joewiocl.webp"}
+            alt={promoBanner?.title || "Promo"}
+            width={1400}
+            height={200}
+            className="object-cover w-full"
+          />
         </Link>
       </div>
 
@@ -945,24 +934,13 @@ export default function HomePage() {
           href={resolveStoredHomeHref(stripBanner?.href, "strip", stripBanner || {})}
           className="min-w-full block relative"
         >
-          {stripBanner?.imageUrl &&
-            (stripBanner.imageUrl.includes("localhost:1337") ||
-              stripBanner.imageUrl.includes("127.0.0.1:1337")) ? (
-            <img
-              src={stripBanner.imageUrl}
-              alt={stripBanner.alt || stripBanner.title || "Banner"}
-              className="object-cover w-full"
-              loading="lazy"
-            />
-          ) : (
-            <Image
-              src={stripBanner?.imageUrl || "/img/image_slider.webp"}
-              alt={stripBanner?.alt || stripBanner?.title || "image_slider"}
-              width={1400}
-              height={200}
-              className="object-cover w-full"
-            />
-          )}
+          <CmsImage
+            src={stripBanner?.imageUrl || "/img/image_slider.webp"}
+            alt={stripBanner?.alt || stripBanner?.title || "image_slider"}
+            width={1400}
+            height={200}
+            className="object-cover w-full"
+          />
         </Link>
       </div>
 
@@ -993,24 +971,13 @@ export default function HomePage() {
           href={resolveStoredHomeHref(mainBanner?.href, "main", mainBanner || {})}
           className="min-w-full block relative"
         >
-          {mainBanner?.imageUrl &&
-            (mainBanner.imageUrl.includes("localhost:1337") ||
-              mainBanner.imageUrl.includes("127.0.0.1:1337")) ? (
-            <img
-              src={mainBanner.imageUrl}
-              alt={mainBanner.alt || mainBanner.title || "Banner"}
-              className="object-cover w-full"
-              loading="lazy"
-            />
-          ) : (
-            <Image
-              src={mainBanner?.imageUrl || "/img/main_bannerbottom.jpeg"}
-              alt={mainBanner?.alt || mainBanner?.title || "image_slider"}
-              width={1400}
-              height={200}
-              className="object-cover w-full"
-            />
-          )}
+          <CmsImage
+            src={mainBanner?.imageUrl || "/img/main_bannerbottom.jpeg"}
+            alt={mainBanner?.alt || mainBanner?.title || "image_slider"}
+            width={1400}
+            height={200}
+            className="object-cover w-full"
+          />
         </Link>
       </div>
 
@@ -1062,24 +1029,13 @@ export default function HomePage() {
           href={resolveStoredHomeHref(middleBanner?.href, "middle", middleBanner || {})}
           className="min-w-full block relative"
         >
-          {middleBanner?.imageUrl &&
-            (middleBanner.imageUrl.includes("localhost:1337") ||
-              middleBanner.imageUrl.includes("127.0.0.1:1337")) ? (
-            <img
-              src={middleBanner.imageUrl}
-              alt={middleBanner.alt || middleBanner.title || "Banner"}
-              className="object-cover w-full"
-              loading="lazy"
-            />
-          ) : (
-            <Image
-              src={middleBanner?.imageUrl || "/img/bottom-2banner.jpeg"}
-              alt={middleBanner?.alt || middleBanner?.title || "image_slider"}
-              width={1400}
-              height={200}
-              className="object-cover w-full"
-            />
-          )}
+          <CmsImage
+            src={middleBanner?.imageUrl || "/img/bottom-2banner.jpeg"}
+            alt={middleBanner?.alt || middleBanner?.title || "image_slider"}
+            width={1400}
+            height={200}
+            className="object-cover w-full"
+          />
         </Link>
       </div>
 
@@ -1121,24 +1077,13 @@ export default function HomePage() {
           href={resolveStoredHomeHref(bottomBanner?.href, "bottom", bottomBanner || {})}
           className="min-w-full block relative"
         >
-          {bottomBanner?.imageUrl &&
-            (bottomBanner.imageUrl.includes("localhost:1337") ||
-              bottomBanner.imageUrl.includes("127.0.0.1:1337")) ? (
-            <img
-              src={bottomBanner.imageUrl}
-              alt={bottomBanner.alt || bottomBanner.title || "Banner"}
-              className="object-cover w-full"
-              loading="lazy"
-            />
-          ) : (
-            <Image
-              src={bottomBanner?.imageUrl || "/img/bottom-3banner.jpeg"}
-              alt={bottomBanner?.alt || bottomBanner?.title || "image_slider"}
-              width={1400}
-              height={200}
-              className="object-cover w-full"
-            />
-          )}
+          <CmsImage
+            src={bottomBanner?.imageUrl || "/img/bottom-3banner.jpeg"}
+            alt={bottomBanner?.alt || bottomBanner?.title || "image_slider"}
+            width={1400}
+            height={200}
+            className="object-cover w-full"
+          />
         </Link>
       </div>
 

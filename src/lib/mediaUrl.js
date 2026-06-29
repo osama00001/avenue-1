@@ -35,3 +35,17 @@ export function pickImageUrl(media) {
   const normalized = normalizeStoredMedia(media);
   return normalized?.url || null;
 }
+
+/** CMS uploads & covers — use <img> to avoid next/image localPatterns config issues. */
+export function shouldUseNativeImage(url) {
+  if (!url) return false;
+  const value = String(url);
+  return (
+    value.includes("localhost:1337") ||
+    value.includes("127.0.0.1:1337") ||
+    value.startsWith("/uploads/") ||
+    value.startsWith("/covers/") ||
+    value.includes("/uploads/") ||
+    value.includes("/covers/")
+  );
+}

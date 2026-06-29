@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import afterDiscountPrice from "@/lib/afterDiscountPrice";
 import reverseName from "@/lib/reverseName";
+import { shouldUseNativeImage } from "@/lib/mediaUrl";
 
 function extractBookIdFromHref(href = "") {
   if (!href) return null;
@@ -170,22 +171,23 @@ export default function HomeMustReadSection({ featured }) {
 
   const imageAlt = featured.alt || sectionTitle || featured.label || "Featured";
 
-  const imageBlock = isExternalImage ? (
-    <img
-      src={featured.imageUrl}
-      alt={imageAlt}
-      className="w-full h-auto object-cover"
-      loading="lazy"
-    />
-  ) : (
-    <Image
-      src={featured.imageUrl}
-      alt={imageAlt}
-      width={1200}
-      height={400}
-      className="w-full h-auto object-cover"
-    />
-  );
+  const imageBlock =
+    isExternalImage || shouldUseNativeImage(featured.imageUrl) ? (
+      <img
+        src={featured.imageUrl}
+        alt={imageAlt}
+        className="w-full h-auto object-cover"
+        loading="lazy"
+      />
+    ) : (
+      <Image
+        src={featured.imageUrl}
+        alt={imageAlt}
+        width={1200}
+        height={400}
+        className="w-full h-auto object-cover"
+      />
+    );
 
   return (
     <section className="py-10 px-4 max-w-6xl mx-auto">
