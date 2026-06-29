@@ -3,6 +3,13 @@ import {
   getBookDisplayFormatKey,
 } from "@/lib/bookFormats";
 
+function hasThreeDigitPrice(...values) {
+  return values.some((value) => {
+    const whole = String(value).split(".")[0];
+    return whole.length >= 3;
+  });
+}
+
 function FormatPrice({ price, originalPrice, discountPercent, compact = false }) {
   const displayPrice =
     typeof price === "number" ? price.toFixed(2) : String(price);
@@ -11,16 +18,22 @@ function FormatPrice({ price, originalPrice, discountPercent, compact = false })
       ? originalPrice.toFixed(2)
       : String(originalPrice ?? "");
 
+  const hasDiscount = Number(discountPercent) > 0;
+  const stackPrices =
+    hasDiscount && hasThreeDigitPrice(displayPrice, displayOriginal);
+
   return (
     <span
-      className={`block font-bold text-gray-900 ${compact ? "text-[10px] sm:text-xs mt-0.5" : "text-base mt-1"}`}
+      className={`block font-bold text-gray-900 ${compact ? "text-[10px] sm:text-xs mt-0.5" : "text-base mt-1"} ${stackPrices ? "leading-tight" : ""}`}
     >
-      {Number(discountPercent) > 0 && (
-        <span className="line-through text-gray-400 font-normal text-sm mr-1">
+      {hasDiscount && (
+        <span
+          className={`line-through text-gray-400 font-normal ${compact ? "text-[10px] sm:text-xs" : "text-sm"} ${stackPrices ? "block" : "inline mr-1"}`}
+        >
           £{displayOriginal}
         </span>
       )}
-      £{displayPrice}
+      <span className={stackPrices ? "block" : undefined}>£{displayPrice}</span>
     </span>
   );
 }

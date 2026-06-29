@@ -53,13 +53,13 @@ export default function ProductCard({ product }) {
   return (
     <Link href={`/${_id}`} className="group shrink-0 block text-black no-underline visited:text-black hover:text-black">
       {/* IMAGE */}
-      <div className="relative w-full h-[340px] overflow-hidden bg-gray-100 flex items-center justify-center">
+      <div className="relative w-full h-[240px] sm:h-[300px] md:h-[340px] overflow-hidden bg-gray-100 flex items-start md:items-center justify-center">
         {image && image.length > 5 && !image.includes("undefined") && !imgError ? (
           <Image
             src={image}
             alt={title}
             fill
-            className="object-contain"
+            className="object-contain object-top md:object-center p-0 md:p-0"
             onError={() => setImgError(true)}
             unoptimized={true}
           />
@@ -72,19 +72,21 @@ export default function ProductCard({ product }) {
         )}
 
         <div
-          className={`absolute top-2 right-2 z-10 transition-opacity duration-200 ${
-            inWishlist ? "opacity-100" : "opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
+          className={`absolute top-1.5 right-1.5 md:top-2 md:right-2 z-10 transition-opacity duration-200 ${
+            inWishlist
+              ? "opacity-100"
+              : "opacity-100 md:opacity-0 md:group-hover:opacity-100"
           }`}
         >
           <WishlistButton
             bookId={_id}
-            size="md"
-            className="p-2 min-w-[44px] min-h-[44px]"
+            size="sm"
+            className="bg-white/90 hover:bg-white rounded-full p-1.5 md:p-2 shadow-sm border border-gray-100"
           />
         </div>
 
-        <div className="absolute bottom-0 left-0 w-full bg-gray-100/95 p-3">
-          {isSellable ? (
+        <div className="absolute bottom-0 left-0 w-full bg-gray-100/95 p-3 space-y-2">
+          {isSellable && (
             <button
               type="button"
               onClick={addToBasket}
@@ -93,7 +95,9 @@ export default function ProductCard({ product }) {
             >
               {syncing ? "ADDING…" : (availabilityStatus === "preorder" ? "PRE-ORDER" : "ADD TO BASKET")}
             </button>
-          ) : (
+          )}
+
+          {!isSellable && (
             <button
               type="button"
               disabled
