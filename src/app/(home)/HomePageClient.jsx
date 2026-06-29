@@ -846,6 +846,7 @@ export default function HomePage() {
       <SaleHighlights
         saletitle="Discover Our Sale Highlights"
         highlights={highlights}
+        variant="icons"
       />
 
       <ProductSlider

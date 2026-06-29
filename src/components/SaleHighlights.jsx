@@ -2,8 +2,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { shouldUseNativeImage } from "@/lib/mediaUrl";
 
-export default function SaleHighlights({ highlights, saletitle }) {
+export default function SaleHighlights({ highlights, saletitle, variant = "links" }) {
   if (!highlights?.length) return null;
+
+  const imageClass =
+    variant === "icons"
+      ? "h-24 w-24 shrink-0 object-contain"
+      : "h-32 w-auto max-w-[140px] shrink-0 object-contain";
 
   return (
     <section className="py-10 px-4 max-w-6xl mx-auto text-center">
@@ -15,21 +20,21 @@ export default function SaleHighlights({ highlights, saletitle }) {
         {highlights.map(({ id, label, iconSrc, href }) => {
           const inner = (
             <>
-              <div className="flex  items-center justify-center">
+              <div className="flex items-center justify-center">
                 {shouldUseNativeImage(iconSrc) ? (
                   <img
                     src={iconSrc}
                     alt=""
-                    className="h-full w-full object-contain"
+                    className={imageClass}
                     loading="lazy"
                   />
                 ) : (
                   <Image
                     src={iconSrc}
                     alt=""
-                    width={96}
-                    height={96}
-                    className="h-full w-full object-contain"
+                    width={variant === "icons" ? 96 : 140}
+                    height={variant === "icons" ? 96 : 140}
+                    className={imageClass}
                   />
                 )}
               </div>
